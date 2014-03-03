@@ -8,7 +8,7 @@ end)
 hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
 	if ply:Team() ~= TEAM_DEATH and ply:Team() ~= TEAM_RUNNER then
 		GAMEMODE:PlayerSpawnAsSpectator(ply)
-		return
+		return true
 	end
     
     ply:AllowFlashlight(true)
@@ -57,8 +57,8 @@ hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
 
 end)
 hook.Add("PlayerLoadout", "PlayerLoadout", function(ply)
-    ply:Give("weapon_crowbar")
 	ply:StripWeapons()
+	ply:Give("weapon_crowbar")
 	return true
 end)
 
