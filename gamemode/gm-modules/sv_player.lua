@@ -95,7 +95,7 @@ hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
     
     if #team.GetPlayers(TEAM_DEATH) < 1 then
         ply:Spawn()
-        return
+        return true
     end
     
 	if ply:GetObserverMode() == OBS_MODE_NONE then
