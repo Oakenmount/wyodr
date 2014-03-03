@@ -35,7 +35,7 @@ if CLIENT then
 			chat.AddText(Color(255,150,0),"[ERROR] ", unpack(things))
 			surface.PlaySound("common/wpn_denyselect.wav")
 		elseif type == MSG_NOTIFY then
-			chat.AddText(Color(10,115,0),"[Jailbreak] ",Color(255,255,255), unpack(things))
+			chat.AddText(Color(10,115,0),"[Deathrun] ",Color(255,255,255), unpack(things))
 		end
 		
 	end)
