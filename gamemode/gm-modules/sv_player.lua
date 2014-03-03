@@ -1,9 +1,9 @@
 hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
 	if wyodr.GetRoundState() == ROUND_ACTIVE then
-		ply:SetTeam(TEAM_SPECTATOR)
-	else
-		ply:SetTeam(TEAM_RUNNER)
+		ply:SilentKill()
 	end
+	
+	ply:SetTeam(TEAM_RUNNER)
 end)
 hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
 	if ply:Team() ~= TEAM_DEATH and ply:Team() ~= TEAM_RUNNER then
@@ -87,6 +87,10 @@ end)
 
 hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
     local DeathTime = DeathTime or CurTime() + 1.2
+    if #team.GetPlayers(TEAM_DEATH) < 1 then
+        ply:Spawn()
+    end
+    
 	if ply:GetObserverMode() == OBS_MODE_NONE and CurTime() > DeathTime then
 		ply:Spectate(OBS_MODE_ROAMING)
 	end
