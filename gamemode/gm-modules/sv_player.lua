@@ -154,11 +154,9 @@ hook.Add("EntityTakeDamage", "MMDmgBlock", function(target, dmginfo)
 	end
 end)
 
-function GAMEMODE:PlayerCanHearPlayersVoice(listener, talker)
+hook.Add("PlayerCanHearPlayersVoice", "DeafModeStuff", function(listener, talker)
 	if listener:GetDeafMode() then return false end -- If deafmode, dont transmit any voices
-end
-
-
+end)
 
 hook.Add("OnPlayerHitGround","StaminaReplicate",function(ply,bool)
 	ply:SetJumpPower(268.4)
