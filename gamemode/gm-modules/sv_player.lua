@@ -145,24 +145,6 @@ end)
 
 
 
-hook.Add("RoundStart","Muterunners",function()
-	wyodr.runnersMuted = true
-	wyodr.Notify("runners have been gagged for 20 seconds!")
-	timer.Create("unmuterunners", 20, 1, function()
-		wyodr.runnersMuted = false
-		wyodr.Notify("runners have been ungagged!")
-	end)
-end)
-hook.Add("RoundEnd","TeamBalance",function()
-	wyodr.runnersMuted = false
-	timer.Destroy("unmuterunners")
-	for k,v in pairs(player.GetAll()) do
-	    if v:IsActivePlayer() then
-	        v:IncrAchStat("roundsplayed", 1)
-	    end
-    end
-    
-end)
 
 hook.Add("EntityTakeDamage", "MMDmgBlock", function(target, dmginfo)
 	if target:IsPlayer() and target:GetMoonMode() then

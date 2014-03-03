@@ -1,7 +1,7 @@
 
 local default_round_lengths = {
 	[ROUND_WAIT] = 10,
-	[ROUND_ACTIVE] = 60 * 7,
+	[ROUND_ACTIVE] = 60 * 6,
 	[ROUND_POST] = 10	
 }
 
@@ -44,11 +44,6 @@ wyodr.ExtendRoundBy = function(seconds)
 	SetGlobalFloat("roundend", GetGlobalFloat("roundend") + seconds)
 end
 
-hook.Add("PlayerDeath", "JBHasteMode", function()
-	if wyodr.GetRoundState() == ROUND_ACTIVE then
-		wyodr.ExtendRoundBy(15)	
-	end
-end)
 
 timer.Create("roundlogic", 1, 0, function()
 	local state = wyodr.GetRoundState()
