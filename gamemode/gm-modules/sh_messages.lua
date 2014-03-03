@@ -1,6 +1,8 @@
 MSG_NOTIFY = 1
 MSG_ERROR = 2
 
+-- TODO move this stuff to wyolib
+
 if SERVER then
     util.AddNetworkString("wyodrMsg")
 	function wyodr.ErrorMsg(ply, ...)

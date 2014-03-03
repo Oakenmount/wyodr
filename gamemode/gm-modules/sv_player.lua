@@ -90,17 +90,17 @@ function GAMEMODE:PlayerDeathThink(ply)
 	end
 end
 
-function GAMEMODE:JBPreventTeamJoin(ply,teamid)
-	local prisoners = team.NumPlayers(TEAM_RUNNER)
-	local guards = team.NumPlayers(TEAM_DEATH)
+function GAMEMODE:DRPreventTeamJoin(ply,teamid)
+	local runners = team.NumPlayers(TEAM_RUNNER)
+	local deaths = team.NumPlayers(TEAM_DEATH)
 	
-	if guards == 0 then return false end
+	if deaths == 0 then return false end
 	
-	if teamid == TEAM_DEATH and ply:Team() == TEAM_RUNNER and (((prisoners  - 1) / (guards + 1)) < GetConVarNumber("jb_guard_ratio")) then
-		wyodr.ErrorMsg(ply,"Team is full! Ratio must be 1:"..GetConVarNumber("jb_guard_ratio"))
+	if teamid == TEAM_DEATH and ply:Team() == TEAM_RUNNER and (((runners  - 1) / (deaths + 1)) < GetConVarNumber("dr_death_ratio")) then
+		wyodr.ErrorMsg(ply,"Team is full! Ratio must be 1:"..GetConVarNumber("dr_death_ratio"))
 		return true
-	elseif teamid == TEAM_DEATH and ply:Team() == TEAM_SPECTATOR and (((prisoners ) / (guards + 1)) < GetConVarNumber("jb_guard_ratio")) then
-		wyodr.ErrorMsg(ply,"Team is full! Ratio must be 1:"..GetConVarNumber("jb_guard_ratio"))
+	elseif teamid == TEAM_DEATH and ply:Team() == TEAM_SPECTATOR and (((runners ) / (deaths + 1)) < GetConVarNumber("dr_death_ratio")) then
+		wyodr.ErrorMsg(ply,"Team is full! Ratio must be 1:"..GetConVarNumber("dr_death_ratio"))
 		return true
 	end
 	return false
@@ -119,7 +119,7 @@ net.Receive("teamChange",function(len,ply)
 	if teamid == ply:Team() then
 		return wyodr.ErrorMsg(ply, "You can't join the team you're already on!")
 	end
-	if not hook.Call("JBPreventTeamJoin",GAMEMODE,ply,teamid) then 
+	if not hook.Call("DRPreventTeamJoin",GAMEMODE,ply,teamid) then 
 		ply.NextTeamSwitch = CurTime() + 1.5
 		ply:SetNWBool("FreshMeat",false)
 		if (wyodr.GetRoundState() == ROUND_WAIT) then
@@ -144,52 +144,18 @@ net.Receive("teamChange",function(len,ply)
 end)
 
 
-hook.Add("ScalePlayerDamage", "NerfEverything", function(ply, hitgroup, dmginfo)
-	if dmginfo:IsBulletDamage() and hitgroup ~= HITGROUP_HEAD then
-		dmginfo:ScaleDamage(0.6)	
-	end
-end)
 
-hook.Add("PlayerShouldTakeDamage","NOFF",function( victim, pl )
-	if pl:IsPlayer() and pl ~= victim then
-		if (pl:Team() == victim:Team() and wyodr.GetRoundState() ~= ROUND_POST) and GetConVarNumber("mp_friendlyfire") == 0 then -- check the teams are equal and that friendly fire is off.
-			return false
-		end
-	end
-	
-	return true
-end)
-
-
-local function TeamBalance()
-	
-	local numGuard = team.NumPlayers(TEAM_DEATH)
-	local numPrisoner = team.NumPlayers(TEAM_RUNNER)
-	
-	if #player.GetAll() < (GetConVarNumber("jb_guard_ratio") + 1) or numGuard <= 1 then return end
-	
-	if ((numPrisoner) / numGuard) < GetConVarNumber("jb_guard_ratio") then
-		local randomMember = math.random(1,#team.GetPlayers(TEAM_DEATH))
-		local affected_pl = team.GetPlayers(TEAM_DEATH)[randomMember]
-		wyodr.Notify(affected_pl:Nick().." was moved due to teambalance!")
-		affected_pl:SetTeam(TEAM_RUNNER)
-		TeamBalance()
-	end
-	
-end
-hook.Add("RoundEnd","TeamBalance",TeamBalance)
-
-hook.Add("RoundStart","MutePrisoners",function()
-	wyodr.PrisonersMuted = true
-	wyodr.Notify("Prisoners have been gagged for 20 seconds!")
-	timer.Create("unmuteprisoners", 20, 1, function()
-		wyodr.PrisonersMuted = false
-		wyodr.Notify("Prisoners have been ungagged!")
+hook.Add("RoundStart","Muterunners",function()
+	wyodr.runnersMuted = true
+	wyodr.Notify("runners have been gagged for 20 seconds!")
+	timer.Create("unmuterunners", 20, 1, function()
+		wyodr.runnersMuted = false
+		wyodr.Notify("runners have been ungagged!")
 	end)
 end)
 hook.Add("RoundEnd","TeamBalance",function()
-	wyodr.PrisonersMuted = false
-	timer.Destroy("unmuteprisoners")
+	wyodr.runnersMuted = false
+	timer.Destroy("unmuterunners")
 	for k,v in pairs(player.GetAll()) do
 	    if v:IsActivePlayer() then
 	        v:IncrAchStat("roundsplayed", 1)
@@ -210,13 +176,8 @@ end)
 
 function GAMEMODE:PlayerCanHearPlayersVoice(listener, talker)
 	if listener:GetDeafMode() then return false end -- If deafmode, dont transmit any voices
-	return (((talker:Team() ~= TEAM_RUNNER or not wyodr.PrisonersMuted) and (talker:IsAlivePlayer() or (not listener:IsAlivePlayer()))) or wyodr.GetRoundState() ~= ROUND_ACTIVE) or talker:IsAdmin()
 end
 
-hook.Add("PlayerDeath","notifyvictim",function(victim,ent,killer)
-    if victim == killer or (not killer:IsPlayer()) then return end
-    wyodr.NotifyPly(victim,"You were killed by "..killer:Nick())
-end)
 
 
 hook.Add("OnPlayerHitGround","StaminaReplicate",function(ply,bool)
