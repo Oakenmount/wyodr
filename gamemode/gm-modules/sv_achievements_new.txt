@@ -1,0 +1,98 @@
+-- Check if ply has achieved any achievements
+hook.Add("CheckAchievements", "CheckAchievements", function(ply)
+    for achid,ach in pairs(wyodr.NAchievements) do
+        if not ply:HasAchievement(achid) and ach:progress(ply) >= 1 then
+            ply:GiveAchievement(achid)
+        end
+    end
+end)
+
+-- Add plymeta methods
+local plymeta = FindMetaTable("Player")
+
+function plymeta:GiveAchievement(achid)
+    local ach_tbl = wyodr.NAchievements[achid]
+    if not ach_tbl then return ErrorNoHalt("invalid achid " .. achid) end
+    
+    local ach_table = self:GetAchievementTable()
+    table.insert(ach_table, achid)
+    self:SetAchievementTable(ach_table)
+    
+    MsgN("Giving achievement ", achid, " to ", self)
+    
+    ach_tbl:on_achieve(self)
+    
+    ULib.tsayColor(_, _,
+        team.GetColor(self:Team()), self:Nick(), Color(255, 255, 255), " just unlocked achievement ",
+        Color(46, 204, 113), ach_tbl.name, Color(255, 255, 255), "!")
+end
+
+function plymeta:TakeAchievement(achid)
+    local ach_tbl = wyodr.NAchievements[achid]
+    if not ach_tbl then return ErrorNoHalt("invalid achid " .. achid) end
+    
+    local ach_table = self:GetAchievementTable()
+    table.RemoveByValue(ach_table, achid)
+    self:SetAchievementTable(ach_table)
+    
+    MsgN("Removing achievement ", achid, " from ", self)
+end
+
+function plymeta:SetAchievementTable(tbl)
+    self:SetPData("achievs_unlocked", util.TableToJSON(tbl))
+    self:SetNWString("achievs_unlocked", util.TableToJSON(tbl))
+    self.CachedAchTable = tbl 
+end
+
+function plymeta:GetAchievementProgresses()
+    local progs = {}
+    for achid, ach in pairs(wyodr.NAchievements) do
+        progs[achid] = math.Clamp(ach:progress(self), 0, 1)
+    end
+    return progs
+end
+
+util.AddNetworkString("ejb_achivpopup")
+function plymeta:IncrAchStat(stat, amount)
+    amount = amount or 1
+    
+    local initial_progs = self:GetAchievementProgresses()
+    
+    local newamount = self:GetAchStat(stat, 0) + amount
+    self:SetPData("achstat_" .. stat, newamount)
+    
+    local following_progs = self:GetAchievementProgresses()
+    local delta_progs = {}
+    
+    for k,v in pairs(initial_progs) do
+        if v ~= following_progs[k] then
+            delta_progs[k] = following_progs[k]    
+        end
+    end
+
+    for achid, prog in pairs(delta_progs) do
+        --MsgN(self, " prog in ", wyodr.NAchievements[achid].name, "> ", prog)
+		net.Start("ejb_achivpopup")
+		net.WriteString(wyodr.NAchievements[achid].name)
+		net.WriteFloat(prog)
+		net.Send(self) 
+    end
+    
+    hook.Call("CheckAchievements", GAMEMODE, self)
+end
+
+hook.Add("PlayerInitialSpawn", "SendAchData", function(ply)
+    ply:GetAchievementTable() -- nwstring is set in getachtable func
+end)
+
+hook.Add("PlayerDeath", "AchPlyDeath", function(ply, infl, attacker)
+    if IsValid(attacker) and attacker:IsPlayer() and ply ~= attacker and wyodr.GetRoundState() == ROUND_ACTIVE then
+        local plyteam = ply:Team()
+        if plyteam == TEAM_PRISONER then
+            attacker:IncrAchStat("prisonerkills")
+        elseif plyteam == TEAM_GUARD then
+            attacker:IncrAchStat("guardkills")
+        end
+    end
+    ply:IncrAchStat("deaths")    
+end)

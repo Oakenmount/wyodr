@@ -1,0 +1,22 @@
+local Player = FindMetaTable("Player")
+ 
+function Player:Error(type)
+   self:SendLua(Error(type))
+end
+
+function Player:GetMoonMode()
+	return self:GetNWBool("moonmode", false)
+end
+
+function Player:GetDeafMode()
+	return self:GetNWBool("deafmode", false)
+end
+
+if SERVER then
+	function Player:SetMoonMode(bool)
+		self:SetNWBool("moonmode", bool)	
+	end
+	function Player:SetDeafMode(bool)
+		self:SetNWBool("deafmode", bool)
+	end
+end

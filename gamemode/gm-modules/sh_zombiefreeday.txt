@@ -1,0 +1,115 @@
+
+if SERVER then
+    util.AddNetworkString("ZombieFreeday")
+    net.Receive("ZombieFreeday",function(len,player)
+        if player == GetGlobalEntity("Warden") and player:Alive() and player:Team() == TEAM_GUARD then
+            ZombieFreeday()
+        end
+end)
+    
+    hook.Add("PlayerSay","ZombieFreedayChatCommand",function(ply,text)
+        if text == "!zombiefreeday" then
+            ply:ConCommand("zombiefreeday")
+        end
+    end)
+    
+    
+    function ZombieFreeday()
+        SetGlobalFloat("zombiefreedaycooldown",GetGlobalFloat("zombiefreedaycooldown") or CurTime() - 1)
+            if GetGlobalFloat("zombiefreedaycooldown") > CurTime() then wyodr.Notify("Zombie freeday is on cooldown!") return end
+        SetGlobalBool("ZombieFreeday",true)
+        SetGlobalFloat("zombiefreedaycooldown",CurTime() + 60 * 30)
+        for k,v in pairs(team.GetPlayers(TEAM_PRISONER)) do
+            v:StripWeapons()
+            v.IsZombie = true
+            v:Give("bb_css_knife_alt")
+            v:SetRunSpeed(220)
+            v:SetWalkSpeed(220)
+            v:SetModel("models/player/zombie_classic.mdl")
+            v:IncrAchStat("zombiefreeday",1)
+        end
+        
+        timer.Create("GibeZKnife",10,0,function()
+            for k,v in pairs(player.GetAll()) do
+                if v.IsZombie then
+                    v:Give("bb_css_knife_alt")
+                end
+            end
+        end)
+        
+        
+        hook.Add("PlayerCanPickupWeapon","nozombieweps",function(ply, wep)
+            if ply.IsZombie and wep:GetClass() ~= "bb_css_knife_alt" then return false end
+        end)
+        
+        hook.Add("EntityTakeDamage", "donthurtzombitches", function(target, dmginfo)
+        	if target:IsPlayer() and target.IsZombie then
+        		dmginfo:SetDamage(0)
+        	end
+        end)
+        
+        
+        hook.Add("RoundEnd","clearzombiefreeday",function()
+            for k,v in pairs(player.GetAll()) do
+                v.IsZombie = false
+                v:SetRunSpeed(325)
+                v:SetWalkSpeed(250)
+            end
+            SetGlobalBool("ZombieFreeday",false)
+            hook.Remove( "PlayerCanPickupWeapon","nozombieweps" )
+            hook.Remove( "EntityTakeDamage", "donthurtzombitches" )
+            hook.Remove( "RoundEnd","clearzombiefreeday" )
+            hook.Remove("HUDPaint", "ZombieHUD" )
+            timer.Destroy("GibeZKnife")
+        end)
+    end
+end
+
+if CLIENT then
+    
+    function wardenstartzombiefreeday(player,command)
+    if player == GetGlobalEntity("Warden") and player:Alive() and player:Team() == TEAM_GUARD then
+        net.Start("ZombieFreeday")
+        net.SendToServer()
+        
+        else
+                print("You must be an alive warden!")
+        end
+    
+    end
+    concommand.Add("zombiefreeday",wardenstartzombiefreeday)
+    
+    
+    hook.Add("HUDPaint", "ZombieHUD", function()
+        if not GetGlobalBool("ZombieFreeday") then return end
+        
+        if LocalPlayer():Team() ~= TEAM_SPECTATOR then
+    	   	draw.SimpleText(
+    		"Zombie Freeday",
+    		"RoundStateText",
+    		ScrW()/2, 90,
+    		Color(200,10,10), 0, 0,
+    		TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    	end
+    end)
+    
+    hook.Add( "RenderScreenspaceEffects", "zombieshit",function()
+        if not GetGlobalBool("ZombieFreeday") then return end
+        
+        if LocalPlayer():Team() ~= TEAM_PRISONER or LocalPlayer():Alive() == false then return end
+        local tab = {}
+    	tab[ "$pp_colour_addr" ] = 0.5
+    	tab[ "$pp_colour_addg" ] = 0
+    	tab[ "$pp_colour_addb" ] = 0
+    	tab[ "$pp_colour_brightness" ] = 0
+    	tab[ "$pp_colour_contrast" ] = 0.6
+    	tab[ "$pp_colour_colour" ] = 0.5
+    	tab[ "$pp_colour_mulr" ] = 0
+    	tab[ "$pp_colour_mulg" ] = 0
+        tab[ "$pp_colour_mulb" ] = 0 
+        DrawColorModify( tab )
+        DrawMotionBlur( 0.1, 0.29, 0.05 )
+    end)
+    
+end
+    

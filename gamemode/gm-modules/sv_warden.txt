@@ -1,0 +1,81 @@
+hook.Add("ShowSpare1", "RequestWarden", function(ply)
+	if ply:Team() ~= TEAM_GUARD then return end
+	
+	ply:SetNWBool("WardenPool",not ply:GetNWBool("WardenPool") or false)
+	if ply:GetNWBool("WardenPool") then
+		wyodr.NotifyPly(ply,"You have applied for warden.")
+	else
+		wyodr.NotifyPly(ply,"You have resigned from warden.")
+	end
+end)
+
+hook.Add("RoundEnd", "RemoveOldWarden", function()
+	SetGlobalEntity("Warden", NULL)
+end)
+
+util.AddNetworkString("WardenVote")
+net.Receive("WardenVote",function(len,ply)
+	if ply.HasAVote then
+	local pl = net.ReadEntity()
+	pl.Votes = pl.Votes or 0
+	pl.Votes = pl.Votes + 1
+	ply.HasAVote = false
+	end
+	
+end)
+
+hook.Add("RoundStart","resetvotes",function()
+	for k,v in pairs(player.GetAll()) do
+		v.HasAVote = true
+	end
+	local wardenTable = {}
+	for k,v in pairs(player.GetAll()) do
+		v.Votes = 0
+	end
+	timer.Simple(5,function()
+		for k,v in pairs(team.GetPlayers(TEAM_GUARD)) do
+			if v:GetNWBool("WardenPool") then
+				table.insert(wardenTable,{ent=v,votes = v.Votes})
+			end
+		end
+		table.SortByMember(wardenTable,"votes")
+		if #wardenTable > 0 then
+			local winner = wardenTable[1].ent 
+			SetGlobalEntity("Warden",winner)
+			wyodr.Notify(winner:Nick().." became warden!")
+			
+			hook.Call("WardenElected", GAMEMODE, winner)
+			BroadcastLua([[ hook.Call("WardenElected", GAMEMODE, ents.GetByIndex(]] .. winner:EntIndex() .. [[)) ]])
+			
+			winner:IncrAchStat("wardenelect", 1)
+		else
+			local guards = team.GetPlayers(TEAM_GUARD)
+			if #guards < 1 then 
+				wyodr.SetRoundState(ROUND_WAIT)
+				hook.Call("RoundPreparing",GAMEMODE)
+				return
+			end
+			local randomWinner = guards[math.random(1,#guards)] or nil
+			SetGlobalEntity("Warden",randomWinner)
+			hook.Call("WardenElected", GAMEMODE, randomWinner)
+			BroadcastLua([[ hook.Call("WardenElected", GAMEMODE, ents.GetByIndex(]] .. randomWinner:EntIndex() .. [[)) ]])
+			wyodr.Notify(randomWinner:Nick().." was randomly selected as warden!")
+		end
+		GetGlobalEntity("Warden"):Give("weapon_checker")
+		SetGlobalBool("WardenActive",true)
+		
+	end)
+
+end)
+
+
+hook.Add("RoundEnd","resetwardenglobal",function()
+	SetGlobalEntity("Warden",nil)
+end)
+--[[
+hook.Add("PlayerDeath","WardenIsKillHook",function(ply,ent,fuckdisgui)
+	if ply == GetGlobalEntity("Warden") then
+		wyodr.Notify("The warden has died!")
+	end
+end)
+]]

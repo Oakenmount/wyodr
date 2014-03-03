@@ -1,0 +1,3 @@
+local pm = FindMetaTable("Player")
+pm.SetRealEyeAngles = pm.SetEyeAngles
+function pm:SetEyeAngles(ang) end

@@ -1,0 +1,196 @@
+CreateClientConVar("cl_hudstyle", 1, true, true )
+local useless_stuff = {"CHudHealth", "CHudBattery", "CHudAmmo", "CHudSecondaryAmmo"}
+
+hook.Add("HUDShouldDraw", "HideEverythingUseless", function(name)
+    if GetConVarNumber("cl_hudstyle") == 4 then return end
+	if table.HasValue(useless_stuff, name) then return false end
+end)
+
+function GAMEMODE:DrawDeathNotice( x, y ) -- OVERWRITE default killicons
+end
+function GAMEMODE:AddDeathNotice( Victim, team1, Inflictor, Attacker, team2 )
+end
+
+surface.CreateFont("RoundStateText", {
+	font = "Roboto",
+	size = 32,
+	weight = 800
+})
+
+surface.CreateFont("WardenText", {
+	font = "Roboto",
+	size = 18,
+	weight = 800
+})
+
+surface.CreateFont("SpecPlayerNames", {
+	font = "Roboto",
+	size = 16,
+	weight = 800
+})
+
+surface.CreateFont("TimeFont", {
+    font = "Roboto",
+    size = 40,
+    weight = 800
+})
+
+local sin,cos,rad = math.sin,math.cos,math.rad; --Only needed when you constantly calculate a new polygon, it slightly increases the speed.
+local function GenPolyCircle(x,y,radius,quality, startangle, maxangle)
+	startangle = startangle or 0
+	maxangle = maxangle or (math.pi*2)
+    local circle = {
+    	{x=x, y=y}
+    }
+    
+    local tmp = 0
+    for i=0,quality do
+        tmp = startangle + (i*maxangle)/quality
+        circle[#circle+1] = {x = x + cos(tmp)*radius,y = y + sin(tmp)*radius};
+    end
+    circle[#circle+1] = {x=x, y=y}
+    return circle;
+end
+
+local rs_clr_mappings = {
+	[ROUND_WAIT] = Color(46, 204, 113),
+	[ROUND_ACTIVE] = Color(52, 152, 219),
+	[ROUND_POST] = Color(230, 126, 34)
+}
+
+local hpbar = Material("ejb/hpbar.png", "smooth")
+local timer_circle = Material("ejb/timer.png", "smooth")
+local sleekbar = Material("ejb/sleek_healthbar.png", "smooth")
+local sleekbarSpec = Material("ejb/sleek_healthbar-spectate.png", "smooth")
+local timer_teams = {
+	[TEAM_PRISONER] = {mat=Material("ejb/timer-prisoner.png", "smooth"), soff = -0.5, voff = -0.15},
+	[TEAM_GUARD] = {mat=Material("ejb/timer-guard.png", "smooth"), voff = 0.4},
+	[TEAM_SPECTATOR] = {mat=Material("ejb/timer-spect.png", "smooth"), soff = -0.5}
+}
+
+local low_hp_vec = Vector(231/255, 76/255, 60/255)
+local high_hp_vec = Vector(46/255, 204/255, 113/255)
+
+local warningsound_emitted = false
+
+local spectarg_info
+
+surface.CreateFont("ShameOnANigga", {
+    font = "Roboto",
+    size = 100
+})
+
+hook.Add("HUDPaint", "NewDrawHUD", function()
+    
+    if hook.Call("KillNormalHUD", GAMEMODE) then return end
+	    
+	local hpfrac = LocalPlayer():Health() / 100
+	local armorfrac = LocalPlayer():Armor() / 25
+	
+	local iteam = LocalPlayer():Team()
+	
+	local o_x, o_y, o_r = 150, ScrH()-125, 105
+
+	if LocalPlayer():IsActivePlayer() and LocalPlayer():Alive() then
+	
+		local hpclr = LerpVector(hpfrac, low_hp_vec, high_hp_vec)
+		hpclr = Color(hpclr.x*255, hpclr.y*255, hpclr.z*255)
+		local armorclr = Color(41, 128, 185)
+		
+		surface.SetDrawColor(hpclr)
+		surface.SetMaterial(hpbar)
+		render.SetScissorRect( 0, 0, o_x+105+364*hpfrac, o_y+53+70, true)
+		surface.DrawTexturedRect(o_x+105, o_y+53, 364, 70)
+		render.SetScissorRect(0, 0, 0, 0, false)
+		
+		draw.NoTexture()
+		
+	else	
+		local obstarg = LocalPlayer():GetObserverTarget()
+		local frac = 1
+		if spectarg_info and spectarg_info.targ == obstarg then
+			frac = math.Clamp((spectarg_info.st-CurTime()+2)*2, 0, 1)
+		else
+			spectarg_info = {st=CurTime(), targ=obstarg}
+		end
+		if IsValid(obstarg) then
+			local ty = Lerp(math.EaseInOut(frac, 1, 0), ScrH()-50, ScrH()/2+30)
+			
+			surface.SetFont("RoundStateText")
+			local totalw = surface.GetTextSize("Spectating " .. obstarg:Nick())
+			surface.SetTextPos(ScrW()/2-totalw/2, ty)
+			surface.SetTextColor(255, 255, 255)
+			surface.DrawText("Spectating ")
+			surface.SetTextColor(team.GetColor(obstarg:Team()))
+			surface.DrawText(obstarg:Nick())
+			    
+			surface.SetTextColor(255, 255, 255)
+			surface.DrawText(string.format("(cp: %d)", obstarg:GetCampPosStreak()))
+			--[[draw.SimpleText(
+				"Spectating "..obstarg:Nick(),
+				"RoundStateText",
+				ScrW()/2, frac,
+				Color(255, 255, 255, frac*255),
+				TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER
+			)]]
+		end
+
+		for _,ply in pairs(player.GetAll()) do
+			local ts = ply:EyePos():ToScreen()
+			if ts.visible and ply:Team() ~= TEAM_SPECTATOR and ply:Alive() then
+				draw.SimpleText(ply:Nick(), "SpecPlayerNames", ts.x, ts.y, team.GetColor(ply:Team()))
+			end
+		end
+	end
+		
+	if LocalPlayer():Team() == TEAM_SPECTATOR then
+		draw.SimpleText(
+			"Hold tab and click on a team header to join a team",
+			"RoundStateText",
+			ScrW()/2, 90,
+			HSVToColor(((CurTime()*0.1)%1)*360, 0.5, 0.95),
+			TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER
+		)
+    end
+
+	local tti = timer_teams[iteam]
+	
+	if tti then
+		surface.SetMaterial(tti.mat)
+		local h, s, v = ColorToHSV(team.GetColor(iteam))
+		surface.SetDrawColor(HSVToColor(h, s + (tti.soff or 0), v + (tti.voff or 0)))
+		surface.DrawTexturedRect(0-47, ScrH()-320, 395, 395)
+    end
+
+    local roundProgress = (CurTime() - GetGlobalFloat("roundstart"))
+    local roundEnd = (GetGlobalFloat("roundend") - CurTime())
+    
+    surface.SetDrawColor(255, 255, 255)
+    if LocalPlayer():IsActivePlayer() and LocalPlayer():Alive() then
+	    surface.SetMaterial(sleekbar)
+		surface.SetDrawColor(Color(255,255,255))
+		surface.DrawTexturedRect(25, ScrH()-250, 600, 260)
+    else
+	    surface.SetMaterial(sleekbarSpec)
+		surface.SetDrawColor(Color(255,255,255))
+		surface.DrawTexturedRect(25, ScrH()-250, 600, 260)
+    end
+    
+	draw.SimpleText(
+		string.ToMinutesSeconds(math.Round(roundEnd)),
+		"TimeFont",
+		324, ScrH()-105,
+		Color(5,5,5),
+		TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER
+	)
+    
+	--[[draw.SimpleText(
+		"OFFICIAL FNATIC FANSERVER",
+		"ShameOnANigga",
+		ScrW()/2, 150,
+		HSVToColor(0, 0.75 + math.sin(CurTime())*0.25, 0.5),
+		TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER
+	)]]
+	
+	draw.NoTexture()
+end)

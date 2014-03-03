@@ -1,0 +1,575 @@
+local mistcb_click = CreateConVar("mistcb_click", "0", FCVAR_ARCHIVE)
+local mistcb_showimages = CreateConVar("mistcb_showimages", "1", FCVAR_ARCHIVE)
+local mistcb_height = CreateConVar("mistcb_height", "260", FCVAR_ARCHIVE)
+local mistcb_font = CreateConVar("mistcb_font", "Trebuchet MS", FCVAR_ARCHIVE)
+local mistcb_prefixicons = CreateConVar("mistcb_prefixicons", "0", FCVAR_ARCHIVE)
+
+--local mistcb_oldchat = CreateConVar("mistcb_useoldchat", system.IsOSX() and "1" or "0", FCVAR_ARCHIVE)
+
+--if not mistcb_oldchat:GetBool() then
+	mistcb = mistcb or {}
+	mistcb.History = mistcb.History or {}
+
+	if not mistcb.OldCat then
+		mistcb.OldCat = chat.AddText
+	end
+
+	function mistcb.GetSize()
+		return ScreenScale(220), mistcb_height:GetFloat()
+	end
+
+	function mistcb.GetPos()
+		local _, h = mistcb.GetSize()
+		return 22, ScrH() - h - 250
+	end
+
+	-- Utils
+
+	function mistcb.ColorToChatColor(clr)
+	    return tostring(clr.r) .. "," .. tostring(clr.g) .. "," .. tostring(clr.b) .. (clr.a == 255 and "" or ("," .. tostring(clr.a)) )
+	end
+
+	function mistcb.ChatColorToColor(chatclr)
+	    local spl = chatclr:Split(",")
+	    if not spl[1] or not spl[2] or not spl[3] then return end
+	    return Color(tonumber(spl[1]), tonumber(spl[2]), tonumber(spl[3]), spl[4] and tonumber(spl[4]) or 255)
+	end
+
+	local colortable = {
+	    pred = Color(255, 80, 80),
+	    pgreen = Color(80, 255, 80),
+	    pblue = Color(80, 80, 255),
+	    white = Color(255, 255, 255),
+	    lgray = Color(210, 210, 210)
+	}
+
+	local soundtable = {
+	    talk = "common/talk.wav",
+	    denied = "common/wpn_denyselect.wav"
+	}
+
+	function mistcb.GetPlayerColor(ply)
+		if not IsValid(ply) then return Color(255, 255, 255) end
+
+		local vec = ply:GetNWVector("sbclr")
+		if vec and (vec.x ~= 0 or vec.y ~= 0 or vec.z ~= 0) then
+			return Color(vec.x, vec.y, vec.z)
+		end
+		return team.GetColor(ply:Team())
+	end
+
+	function mistcb.AddText(...)
+
+		if not IsValid(mistcb.ChatFrame) then return end
+
+		local htmlified = ""
+		local rawtext = ""
+
+		local clrspanstarted = false
+
+		local function AppendHTML(html)
+			htmlified = htmlified .. html
+		end
+		local function EscapeHTML(text)
+			text = text:Replace("<", "&lt;")
+			text = text:Replace(">", "&gt;")
+			text = text:Replace("\"", "&quot;")
+			return text
+		end
+		local function AppendText(text)
+			text = EscapeHTML(text)
+			rawtext = rawtext .. text
+
+	    	local fstr = text:gsub( "(https?://[%S]*)", function(link)
+	    		return "<span class='link' onclick='javascript:gmod.OpenURL(\\\"" .. link .. "\\\")'>" .. link .. "</span>"
+		    end)
+
+			AppendHTML(fstr)
+		end
+		local function AppendColor(clr)
+			if clrspanstarted then
+				AppendHTML("</span>")
+			end
+			AppendHTML("<span style='color: rgb(" .. tostring(clr.r) .. ", " .. tostring(clr.g) .. ", " .. tostring(clr.b) .. ");'>")
+			clrspanstarted = true
+		end
+
+		local ptts = false
+
+		for k,v in pairs({...}) do
+			if type(v) == "Player" then
+				AppendColor(mistcb.GetPlayerColor(v))
+				AppendHTML("<span class='proflink' onclick='javascript:gmod.OpenProfile(\\\"" .. v:SteamID64() .. "\\\")'>")
+				AppendText(IsValid(v) and v:Nick() or "UNKNOWN")
+				AppendHTML("</span>")
+			elseif type(v) == "table" and v.r then
+				AppendColor(v)
+			elseif type(v) == "table" and v.type == "use" then
+				if v.val == "tts" then
+					ptts = true
+				end
+			elseif type(v) == "table" and v.type == "img" then
+				if mistcb_showimages:GetBool() then
+					AppendHTML("<img src='" .. v.src .. "'>")
+				end
+			elseif type(v) == "string" then
+				AppendText(v)
+			end
+		end
+		if clrspanstarted then
+			htmlified = htmlified .. "</span>"
+		end
+		
+		if ptts then
+			sound.PlayURL("http://tts-api.com/tts.mp3?q=" .. rawtext:Replace(" ", "+"), "", function() end)	
+		end
+
+		--MsgN(htmlified)
+
+		mistcb.ChatFrame.HTML:QueueJavascript([[addMessage("]] .. htmlified .. [[")]])
+	end
+
+	function chat.AddText(...)
+
+		local msgtable = {}
+		
+		-- Hacky method to figure out who's the caller
+		local theply
+		local check_perm = function(tag)
+			if IsValid(theply) and (tag == "img" or tag == "tts") then
+				return theply:IsSupporter() or theply:IsAdmin()
+			end
+			return true
+		end
+
+		for k,v in pairs({...}) do
+			if type(v) == "string" then
+				local datbl = mistcb.Parse(v, check_perm)
+				table.Add(msgtable, datbl)
+			else
+				if not theply and type(v) == "Player" then
+					theply = v
+				end
+				table.insert(msgtable, v)
+			end
+		end
+
+		table.insert(mistcb.History, {
+			Time = os.time(),
+			MessageTable = msgtable
+		})
+		mistcb.OldCat(unpack(msgtable))
+		mistcb.AddText(unpack(msgtable))
+
+		if mistcb_click:GetBool() then
+			surface.PlaySound("common/talk.wav")
+		end
+	end
+
+	function mistcb.Parse(msg, check_perm)
+
+	    local addStrTbl = {}
+	    local plysnd
+	    local stoppedFormatting = false
+
+	    local function AppendStr(str)
+	    	table.insert(addStrTbl, str)
+		end
+
+	    msg:gsub( "([^%(]*)%(([%a]+) ([^%)]*)%)([^%(]*)", function( prefix, tag, nm, postfix )
+	        if prefix and prefix ~= "" then
+	            AppendStr(prefix)
+	        end
+
+	        if stoppedFormatting then -- We shouldnt format anything anymore
+	            AppendStr("(" .. tag .. " " .. nm .. ")")
+	        elseif tag == "clr" then
+	            local clr = mistcb.ChatColorToColor(nm) or colortable[nm] or Color(255, 255, 255)
+	            table.insert(addStrTbl, clr)
+	        elseif tag == "snd" then
+	            plysnd = soundtable[nm] or "common/talk.wav"
+	        elseif tag == "use" then
+	        	if nm == "tts" and (not check_perm or check_perm("tts")) then
+	        		table.insert(addStrTbl, {type = "use", val="tts"})
+        		end
+        	elseif tag == "math" then
+        		nm = nm:Replace("\\", "\\\\")
+        		table.insert(addStrTbl, {type="img", src="http://chart.apis.google.com/chart?cht=tx&chl=" .. nm})
+	        elseif tag == "img" then
+	        	if not check_perm or check_perm("img") then
+	           		table.insert(addStrTbl, {type = "img", src = nm})
+           		end
+	        elseif tag == "stop" then
+	            stoppedFormatting = nm == "formatting"
+	        else -- Assume we matched something biaxident
+	            AppendStr("(" .. tag .. " " .. nm .. ")")
+	        end
+
+	        if postfix and postfix ~= "" then
+	            AppendStr(postfix)
+	        end
+	    end)
+	    if #addStrTbl == 0 then -- ??
+	    	AppendStr(msg)
+	    end
+
+	    return addStrTbl, plysnd
+	end
+
+	function mistcb.CreateFrame()
+
+		mistcb.DeActivate()
+
+		if IsValid(mistcb.ChatFrame) then
+			mistcb.ChatFrame:Remove()
+		end
+
+		local w, h = mistcb.GetSize()
+		local x, y = mistcb.GetPos()
+
+		local chatframe = vgui.Create("DPanel")
+		mistcb.ChatFrame = chatframe
+		chatframe:SetPos(x, y)
+		chatframe:SetSize(w, h)
+		chatframe:SetDrawBackground(false)
+
+		do
+
+			local entry = vgui.Create( "DTextEntry", chatframe )
+			entry:SetSize( 10, 23 )
+			entry:Dock( BOTTOM )
+			entry:SetAlpha( 0 )
+			entry.OnEnter = function( s )
+				local val = s:GetValue() and string.Trim( s:GetValue() )
+				if val ~= "" then --This is only used to prevent blank strings, we'll use GetValue again for the proper string
+					local chatmsg = s:GetValue()
+					local function luaified(str)
+						str = str:Replace("@me", "(player.GetByID(" .. LocalPlayer():EntIndex() .. "))")
+						str = str:Replace("@aw()", ":GetActiveWeapon()")
+						str = string.gsub(str, "@%w*", function(word)
+							local user = ULib.getUser(word:sub(2))
+							if not user then return "(notfound)" end
+							return "(player.GetByID(" .. user:EntIndex() .. "))"
+						end)
+						return str
+					end
+					if chatmsg:StartWith("!l ") then
+						luadev.RunOnSelf(luaified(chatmsg:sub(4)))
+					elseif chatmsg:StartWith("!ls ") then
+						luadev.RunOnServer(luaified(chatmsg:sub(5)))
+					end
+					if mistcb.IsTeam then
+						RunConsoleCommand( "say_team", chatmsg )
+					else
+						RunConsoleCommand( "say", chatmsg )
+					end
+				end
+				mistcb.DeActivate()
+			end
+			entry.OnTextChanged = function( s )
+				if #s:GetValue() > 126 then
+					surface.PlaySound( "tools/ifm/beep.wav" )
+					s:SetText( string.sub( s:GetValue(), 1, 126 ) )
+					s:SetCaretPos( 126 )
+				end
+				hook.Call("ChatTextChanged", GAMEMODE, tostring(s:GetValue()) )
+			end
+			entry:SetAllowNonAsciiCharacters( true )
+			entry.Paint = function( s,w,h )
+				derma.SkinHook( "Paint", "TextEntry", s, w, h )
+			end
+			entry.DefPaint = entry.Paint
+			entry.OnLoseFocus = function( s )
+				if input.IsKeyDown( KEY_TAB ) then
+					s:RequestFocus()
+					local str = hook.Call("OnChatTab", GAMEMODE, s:GetValue() or "")
+					if str then
+						s:SetText( str )
+					end
+				end
+			end
+
+			chatframe.Entry = entry
+		end
+
+		do
+
+			--local dscrl = chatframe:Add("DScrollPanel")
+			--dscrl:Dock(FILL)
+			--dscrl.pnlCanvas:Dock(FILL)
+
+			local thehtml = vgui.Create("DHTML", chatframe)
+			--dscrl:AddItem(thehtml)
+			thehtml:Dock(FILL)
+			thehtml:SetHTML([[
+	<html><head><style>
+	html {
+		color: white;
+		font-family: ]] .. mistcb_font:GetString() .. [[;
+		//font-weight:500;
+		font-size: 103%;
+    	text-shadow: -1px 0 rgba(0,0,0,0.2), 0 1px rgba(0,0,0,0.2), 1px 0 rgba(0,0,0,0.2), 0 -1px rgba(0,0,0,0.2);
+    	overflow: hidden;
+	}
+	div span {
+		//text-shadow: 0px 0px 2px #ff00ff;
+		//text-shadow: 2px 2px 3px #000;
+		background-color: rgba(100, 100, 100, 0.15);
+		min-height: 18px;
+	}
+	img {
+		max-width: 128px;
+		max-height: 128px;
+		//vertical-align: middle;
+	}
+	.link {
+		color: orange;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+	.proflink {
+		cursor: pointer;
+	}
+	#messages {
+	}
+	</style>
+	</head><body>
+	<div id="messages"><div id="messages-content"></div></div>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script>
+
+	var avatarCache = [];
+
+	function isScrolledToBottom() {
+		var body = document.querySelector("body");
+		return body.scrollTop + ]] .. mistcb_height:GetInt() .. [[ >= body.scrollHeight;
+	}
+
+	function scrollToBottom() {
+		$('html, body').scrollTop($(document).height());
+	}
+	
+	var isCbActive = false;
+	
+	var cbAlphaTimeout;
+
+	function setCBActive(bool) {
+		var body = document.querySelector("body");
+
+		body.style.backgroundColor = "rgba(100, 100, 100, " + (bool ? 0.35 : 0.05) + ")";
+		
+		if (!bool) window.getSelection().empty();
+		$(".msg_expired").css("opacity", bool ? "1" : "0");
+		
+		$("html").css("overflow-y", (bool) ? "scroll" : "hidden");
+		if (!bool) cbAlphaTimeout = setTimeout(function(){$("html").css("opacity", "0.99").animate({opacity: 1}, 100);}, 500);
+		
+		isCbActive = bool;
+
+		if (isScrolledToBottom()) scrollToBottom();
+	}
+
+	function addMessage(msg) {
+
+		var shouldScroll = isScrolledToBottom();
+
+		var el = $("<div>");
+		el.html(msg).appendTo($("#messages-content"));
+		el.find("img").bind("load", function() {
+			if (shouldScroll) {
+				scrollToBottom();
+			}
+		});
+		
+		el.delay(10000).queue(function() {
+			$(this).addClass("msg_expired");
+			if (isCbActive == false) {
+				$(this).css("opacity", "0");
+			}
+		});
+		
+		clearTimeout(cbAlphaTimeout);
+
+		if (shouldScroll) {
+			scrollToBottom();
+		}
+	}
+	
+	setTimeout(function() {
+		scrollToBottom();
+	}, 1000);
+	</script>
+	</body></html>
+			]])
+			thehtml:DockMargin(0, 0, 0, 8)
+
+			thehtml:AddFunction( "gmod", "OpenURL", function( param ) gui.OpenURL(param) end )
+			thehtml:AddFunction( "gmod", "OpenProfile", function(param) gui.OpenURL("http://steamcommunity.com/profiles/" .. param) end)
+
+			chatframe.HTML = thehtml
+		end
+
+		table.foreach(mistcb.History, function(k, v)
+			mistcb.AddText(unpack(v.MessageTable))
+		end) 
+
+		chatframe.HTML:Call("scrollToBottom()")
+	end
+
+	concommand.Add("mistcb_refresh", mistcb.CreateFrame)
+	hook.Add("HUDPaint", "CreateMistCB", function()
+		mistcb.CreateFrame()
+		hook.Remove("HUDPaint", "CreateMistCB")	
+	end)
+
+	function mistcb.Activate()
+		--hook.Call("StartChat", GAMEMODE, mistcb.IsTeam)
+
+		mistcb.Active = true
+
+		if not IsValid(mistcb.ChatFrame) then
+			mistcb.CreateFrame()
+		end
+
+		if not IsValid(mistcb.WindowParent) then
+			mistcb.WindowParent = vgui.Create( "DFrame" )
+			mistcb.WindowParent:SetPos(0,0)
+			mistcb.WindowParent:SetSize( ScrW(), ScrH() )
+			mistcb.WindowParent:SetDraggable( false )
+			mistcb.WindowParent:ShowCloseButton( false )
+			mistcb.WindowParent.Paint = function(s,w,h) end
+			mistcb.WindowParent:SetTitle( "" )
+
+			local w, h = mistcb.GetSize()
+			local x, y = mistcb.GetPos()
+
+			mistcb.WindowParent:Show()
+			mistcb.WindowParent:MakePopup()
+			mistcb.WindowParent:SetPos( x,y )
+			mistcb.WindowParent:SetSize( w, h )
+
+			mistcb.WindowParent:SetKeyBoardInputEnabled(true)
+		end
+
+
+		mistcb.ChatFrame:SetParent(mistcb.WindowParent)
+		mistcb.ChatFrame:SetPos(0, 0)
+
+		mistcb.ChatFrame:RequestFocus()
+		mistcb.ChatFrame:SetMouseInputEnabled( true )
+		mistcb.ChatFrame:SetKeyboardInputEnabled( true )
+		
+		mistcb.ChatFrame:MoveToFront()
+		mistcb.ChatFrame:RequestFocus()
+
+		mistcb.ChatFrame.Entry:SetMouseInputEnabled( true )
+		mistcb.ChatFrame.Entry:SetKeyboardInputEnabled( true )
+		mistcb.ChatFrame.Entry:RequestFocus()
+
+		mistcb.ChatFrame.Entry:SetAlpha(255)
+
+		mistcb.ChatFrame.HTML:Call("setCBActive(true);")
+	end
+
+	function mistcb.DeActivate()
+		mistcb.Active = false
+		if IsValid(mistcb.ChatFrame) then
+			mistcb.ChatFrame:SetParent()
+
+			local x, y = mistcb.GetPos()
+			mistcb.ChatFrame:SetPos(x, y)
+
+			mistcb.ChatFrame.Entry:SetAlpha(0)
+			mistcb.ChatFrame:MoveToBack()
+			mistcb.ChatFrame.HTML:Call("setCBActive(false);")
+
+			mistcb.ChatFrame.Entry:SetText( "" )
+			hook.Call("ChatTextChanged", GAMEMODE, "" ) --Hook is called on default open/close
+
+		end
+		if IsValid(mistcb.WindowParent) then mistcb.WindowParent:Remove() end
+
+		--hook.Call("FinishChat", GAMEMODE, mistcb.IsTeam)
+	end
+	
+	
+	hook.Add("Think", "OpenChatViaEnter", function()
+		--if input.IsKeyDown(KEY_ENTER) and not mistcb.Active then
+		--	mistcb.Activate()
+		--end	
+	end)
+
+	--[[hook.Add("StartChat", "MistChat", function(teamsay)
+		mistcb.IsTeam = teamsay
+		mistcb.Activate()
+		return true
+	end)
+
+	hook.Add("FinishChat", "MistChat", function(teamsay)
+		mistcb.DeActivate()
+		--return true
+	end)]]
+
+	local function ChatBindPress( ply, bind, pressed )
+		if ply~=LocalPlayer() then return end
+		
+		if (bind=="messagemode" or bind=="say") and pressed then
+			mistcb.IsTeam = false
+			mistcb.Activate()
+			return true
+		end
+		if (bind=="messagemode2" or bind=="say_team") and pressed then
+			mistcb.IsTeam = true
+			mistcb.Activate()
+			return true
+		end
+	end
+	hook.Add( "PlayerBindPress", "MistChatBinds", ChatBindPress )
+
+	hook.Add("ChatText", "MistChat", function( p, nick, msg, ctype )
+		--MsgN("diggoo ", msg)
+		if type(p) == "Player" and IsValid(p) then
+			chat.AddText(p, Color(255, 255, 255), msg)
+		else
+			chat.AddText(msg)
+		end
+		return true
+	end)
+
+	hook.Add( "HUDShouldDraw", "MistDrawNoChat", function(str) if str == "CHudChat" then return false end end)
+
+	--local avatar_cache = {}
+
+	local function send_ply_message(ply, strText, bTeamOnly, bPlayerIsDead)
+
+		local derp = {} 
+
+		table.insert(derp, {type = "img", src="http://i.imgur.com/Wo2c6HD.png"})
+		table.insert(derp, " ") 
+
+		if bTeamOnly then
+			table.insert(derp, Color(168, 252, 252))
+			table.insert(derp, "[TEAM] ")
+		end
+		if bPlayerIsDead then
+			table.insert(derp, Color(252, 168, 252))
+			table.insert(derp, "[DEAD] ")
+		end
+		if ply:IsValid() then
+			table.insert(derp, ply)
+		else
+			table.insert(derp, Color(192, 192, 192))
+			table.insert(derp, "Console")
+		end
+		table.insert(derp, Color( 255, 255, 255 ))
+
+		table.insert(derp, ": ")
+		table.insert(derp, strText)
+
+		chat.AddText( unpack(derp) )
+	 
+		return true
+	end
+
+	hook.Add("OnPlayerChat", "MistChat", send_ply_message)
+--end

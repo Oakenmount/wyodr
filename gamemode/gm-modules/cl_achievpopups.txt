@@ -1,0 +1,69 @@
+
+surface.CreateFont("AchTextBig", {
+	font = "Roboto",
+	size = 30
+})
+
+surface.CreateFont("AchTextMed", {
+	font = "Roboto",
+	size = 26
+})
+
+local progidx = 0
+function AchievementProgressGUI(text, frac)
+	
+	local panel = vgui.Create("DButton")
+	panel:SetText("")
+	local sw, sh = 500, 100
+	panel:SetSize(sw, sh)
+	panel:SetPos(ScrW()-sw, ScrH())
+	panel.DoClick = function(self)
+		progidx = progidx - 1
+		self:Remove()
+	end
+	panel.Paint = function(self, w, h)
+		if frac < 1 then
+			surface.SetDrawColor(0, 0, 0, 200)
+		else
+			surface.SetDrawColor(100, 100, 100, 200)
+		end
+		surface.DrawRect(0, 0, w, h)
+		surface.SetDrawColor(0, 0, 0)
+		surface.DrawOutlinedRect(0, 0, w, h)
+		
+		draw.SimpleText(text or "Achievement Progress", "AchTextBig", sw/2, 5, Color(255, 255, 255), TEXT_ALIGN_CENTER)
+		
+		surface.SetDrawColor(255, 255, 255)
+		surface.DrawRect(1, 40, w-2, 25)
+		
+		surface.SetDrawColor(231, 76, 60)
+		surface.DrawRect(2, 41, w-4, 23)
+		
+		if frac < 1 then
+			surface.SetDrawColor(46, 204, 113)
+			surface.DrawRect(2, 41, (w-4)*frac, 23)
+		else
+			surface.SetDrawColor(HSVToColor(((CurTime()*0.3)%1)*360, 0.5, 0.95))
+			surface.DrawRect(2, 41, (w-4), 23)
+		end
+		
+		--draw.SimpleText(tostring(val), "AchTextMed", 3, 70)
+		draw.SimpleText(math.Round(frac*100) .. "%", "AchTextMed", w/2, 70, nil, TEXT_ALIGN_CENTER)
+		--draw.SimpleText(tostring(target), "AchTextMed", w-3, 70, Color(255, 255, 255), TEXT_ALIGN_RIGHT)
+	end
+	panel.Think = function(self)
+		self.StartLife = self.StartLife or CurTime()
+		if (CurTime() - self.StartLife) > 10 then
+			progidx = progidx - 1
+			panel:MoveTo(ScrW()-sw, ScrH(), 0.5, 0, 1, function() self:Remove() end)
+			self.Think = nil	
+		end
+	end
+	
+	panel:MoveTo(ScrW()-sw, ScrH()-sh-sh*progidx, 0.5, 0, 1)
+	progidx = progidx + 1
+end
+
+net.Receive("ejb_achivpopup", function()
+	AchievementProgressGUI(net.ReadString(), net.ReadFloat())
+end)

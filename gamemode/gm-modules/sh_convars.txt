@@ -1,0 +1,2 @@
+CreateConVar( "jb_guard_ratio", "3", {FCVAR_REPLICATED,}, "Amount of prisoners per guard" )
+CreateConVar( "jb_teambalance", "1", {FCVAR_REPLICATED,}, "Team balance" )

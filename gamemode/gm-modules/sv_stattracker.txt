@@ -1,0 +1,44 @@
+if not sql.TableExists("ejbtracker") then
+	sql.Query("CREATE TABLE ejbtracker (time INT, plycount INT, map TEXT, avgplaytime INT)")
+end
+
+local function AddEJBEntry()
+    local plycount = #player.GetHumans()
+    local playtimes = {}
+    
+    for _,ply in pairs(player.GetHumans()) do
+        table.insert(playtimes, ply:GetUTimeTotalTime())
+        --totalplaytime = totalplaytime + ply:GetUTimeTotalTime()
+    end
+    
+    table.sort(playtimes)
+    
+    local medianplaytime = 0
+    if #playtimes > 0 then
+        if #playtimes % 2 == 0 then
+            medianplaytime = ( playtimes[#playtimes/2] + playtimes[(#playtimes/2)+1] ) / 2
+        else
+            medianplaytime = playtimes[math.ceil(#playtimes/2)]
+        end
+    end
+    
+	sql.Query("INSERT INTO ejbtracker VALUES (" .. os.time() .. ", " .. plycount .. ", '" .. game.GetMap() .. "', " .. medianplaytime .. ")")
+end
+
+timer.Create("AddEJBStat", 60*5, 0, function()
+	AddEJBEntry()
+end)
+
+util.AddNetworkString("ejb_stats")
+
+net.Receive("ejb_stats", function(len, cl)
+	local time = tonumber(net.ReadUInt(32)) or 0
+	local opp_dir = net.ReadBit() == 1
+	if not cl:IsAdmin() then return end
+	local where_clause = ""
+	if time > 0 then where_clause = ("WHERE time " .. (opp_dir and ">" or "<") .. "= " .. time) end
+	net.Start("ejb_stats")
+	net.WriteTable(os.date("*t"))
+	net.WriteTable(sql.Query("SELECT time as t, plycount as c, map as m, avgplaytime as a FROM ejbtracker " .. where_clause .. " ORDER BY time DESC LIMIT 700") or {})
+	net.Send(cl)
+end)

@@ -1,0 +1,89 @@
+function CustomVote(title,timeout,optionTable,votetype,endfunction)
+GlobalOptionTable = optionTable or {}
+	local DermaPanel = vgui.Create( "DFrame" )
+		DermaPanel:SetSize( 170, 250 )
+		DermaPanel:SetTitle( title.." ["..timeout.."]" )
+		DermaPanel:SetVisible( true )
+		DermaPanel:SetDraggable( false )
+		DermaPanel:ShowCloseButton( false )
+		DermaPanel:Center()
+		DermaPanel:AlignLeft( 10 )
+		DermaPanel.Paint = function()
+			draw.RoundedBox( 8, 0, 0, DermaPanel:GetWide(), DermaPanel:GetTall(), Color( 0, 0, 0, 150 ) )
+		end
+	
+	local currenttime = CurTime()
+	timer.Create("timeoutvotederma",1,math.Round(timeout),function()
+		if not DermaPanel:IsValid() then timer.Destroy("timeoutvotederma") return end
+		DermaPanel:SetTitle( title.." ["..math.Round(timeout - (CurTime() - currenttime)).."]" )
+	end)
+	 
+	local DermaList = vgui.Create( "DPanelList", DermaPanel )
+		DermaList:SetPos( 15,25 )
+		DermaList:SetSize( 200, 200 )
+		DermaList:SetSpacing( 5 ) -- Spacing between items
+		DermaList:EnableHorizontal( false ) -- Only vertical items
+		DermaList:EnableVerticalScrollbar( true ) -- Allow scrollbar if you exceed the Y axis
+	
+	
+	if votetype == "Player" then
+		for k,v in pairs(optionTable) do
+			local addvote = vgui.Create("DLabel", DermaPanel)
+				addvote:SetText(k..".            "..v:Nick())
+				DermaList:AddItem( addvote )
+			local av = vgui.Create("AvatarImage", addvote)
+				av:SetPos(15,0)
+				av:SetSize(22, 22)
+				av:SetPlayer( v, 22 )
+			
+		end
+	else
+		for k,v in pairs(optionTable) do
+			local addvote = vgui.Create("DLabel", DermaPanel)
+				addvote:SetText(k..".  "..v)
+				DermaList:AddItem( addvote )
+		end
+			
+	end
+	
+	DermaList:SetSize(DermaList:GetWide(),(1 + #optionTable) * 25)
+	DermaPanel:SetSize(DermaPanel:GetWide(),(1 + #optionTable) * 25)
+	
+	--[[
+	if #DermaList:GetItems() < 2 then
+		DermaPanel:Close()
+		timer.Destroy("timeoutvotederma")
+	end
+]]
+	timer.Simple(timeout,function()
+		if DermaPanel:IsValid() then DermaPanel:Close() end
+	end)
+	
+	function CloseVoteMenu()
+		if DermaPanel:IsValid() then DermaPanel:Close() timer.Destroy("timeoutvotederma") end
+	end
+	
+LocalPlayer():AddPlayerOption(title,timeout,VoteFunc,function() end)
+end
+
+function VoteFunc(id)
+	if id == 0 then id = 10 end
+	
+	if GlobalOptionTable[id] ~= nil then
+	    net.Start("CustomVote")
+	    	net.WriteTable(GlobalOptionTable)
+			net.WriteUInt(id,8)
+	    net.SendToServer()
+	    CloseVoteMenu()
+   		return true
+	end
+	
+end
+
+net.Receive("SendVote",function(len)
+	local title = net.ReadString()
+	local timeout = net.ReadFloat()
+	local options = net.ReadTable()
+	local votetype = net.ReadString()
+	CustomVote(title,timeout,options,votetype)
+end)

@@ -1,0 +1,38 @@
+
+local function DoCrap()
+    return os.date("%d.%m") == "04.01"
+end
+
+hook.Add("HUDPaint", "MLPIsFunAndGames", function()
+    if not DoCrap() then return end
+    
+    if not IsValid(wyodr.SwagHud) then
+        wyodr.SwagHud = vgui.Create("DHTML")
+        wyodr.SwagHud:SetPos(0, 0)
+        wyodr.SwagHud:SetSize(ScrW(), ScrH())
+        wyodr.SwagHud:OpenURL("http://dl.dropboxusercontent.com/u/18458187/bbaf2k14.html")
+    end
+    
+    if IsValid(wyodr.SwagHud) then
+        local roundProgress = (CurTime() - GetGlobalFloat("roundstart"))
+        local roundEnd = (GetGlobalFloat("roundend") - CurTime())
+            
+		
+        wyodr.SwagHud:RunJavascript([[
+            if ("SetDetails" in window) {
+                SetDetails(]] .. LocalPlayer():Health() .. [[, "]] .. string.ToMinutesSeconds(math.Round(roundEnd)) .. [[");
+            }
+        ]])    
+    end
+end)
+
+hook.Add("KillNormalHUD", "2muchswag", function()
+    if not DoCrap() then return end
+    
+    return true
+end)
+
+if IsValid(wyodr.SwagHud) then
+    wyodr.SwagHud:Remove()
+    
+end

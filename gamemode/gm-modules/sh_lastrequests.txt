@@ -1,0 +1,25 @@
+
+LastRequests = {
+	["deagletoss"] = {
+		
+	}	
+}
+
+if SERVER then
+	--[[
+	hook.Add("JBPlayerDroppedWeapon", "WeaponDropLength", function(ply, wep)
+	    local timerid = "weptracker" .. wep:EntIndex()
+		local startpos = wep:GetPos()
+		timer.Create(timerid, 0.1, 0, function()
+			if not IsValid(ply) or not IsValid(wep) or IsValid(wep:GetOwner()) then
+				return timer.Destroy(timerid)
+			end
+			ply.LR_WepTossLength = wep:GetPos():Distance(startpos)
+			
+			if wep:GetVelocity():Length() < 0.01 then
+				return timer.Destroy(timerid)
+			end
+		end)
+	end)
+	]]
+end

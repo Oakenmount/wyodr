@@ -1,0 +1,31 @@
+
+wyodr.ChatChannels = wyodr.ChatChannels or {}
+
+hook.Add("PlayerSay", "ChatChannelCommands", function(ply, text, public)
+	if text:StartWith("/joinchan ") then
+		local chan = text:sub(11)
+		wyodr.NotifyPly(ply, "You joined channel " .. chan)
+		wyodr.ChatChannels[chan] = wyodr.ChatChannels[chan] or {players = {}}
+		local tbl = wyodr.ChatChannels[chan]
+		if not table.HasValue(tbl.players, ply) then
+			table.insert(tbl.players, ply)
+		end
+		return ""
+	elseif text:StartWith("/leavechan ") then
+		local chan = text:sub(12)
+		wyodr.NotifyPly(ply, "You leaved channel " .. chan)
+		local tbl = wyodr.ChatChannels[chan]
+		if tbl then
+			table.RemoveByValue(tbl.players, ply)	
+		end
+		return ""
+	elseif text:StartWith("¤") then
+		local chans = text:sub(3):Split(" ")
+		local chan, msg = chans[1], chans[2]
+		local tbl = wyodr.ChatChannels[chan]
+		if tbl then
+			wyodr.NotifyPly(tbl.players, "[", Color(26, 188, 156), "#", chan, Color(255, 255, 255), "] ", ply, Color(255, 255, 255), ": ", msg)	
+		end
+		return ""
+	end
+end)
