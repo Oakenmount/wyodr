@@ -1,4 +1,6 @@
-local basefol = GAMEMODE.FolderName .. "/gm-modules/"
+include( 'player_class/player_deathrun.lua' )
+
+local basefol = GM.FolderName.."/gamemode/gm-modules/"
 
 local function LoadModuleFolder(modulenm)
 
@@ -6,8 +8,6 @@ local function LoadModuleFolder(modulenm)
 	if modulenm and modulenm ~= "" then
 	    full_folder = full_folder .. modulenm .. "/"
 	end
-	
-	MsgN(full_folder, #select(1, file.Find(full_folder .. "*.lua", "LUA")))
 
 	local files, folders = file.Find(full_folder .. "*", "LUA")
 
@@ -34,6 +34,10 @@ local function LoadModuleFolder(modulenm)
 		if CLIENT then include(full_folder .. clfile) end
 		wyodr.PersistLog("Loading cl module " .. clfile)
 	end
+	
+	if modulenm == "" then
+	    LOADEDCLSV = {files, folders}    
+	end
 
 end
 
@@ -50,10 +54,6 @@ local function LoadModules()
 	MsgN("Loading e modules")
 
 end
-
-LoadModules()
-
-include( 'player_class/player_deathrun.lua' )
 
 GM.Name = "wyodr"
 GM.Author = "Wyozi"
