@@ -49,8 +49,8 @@ local function LoadModules()
 
 end
 
-GM.Name = "wyodr"
-GM.Author = "Wyozi"
+GM.Name = "Deathrun"
+GM.Author = "Wyozi&Jacob"
 
 local is_debug = CreateConVar("wyodr_debug", "0", FCVAR_ARCHIVE)
 
