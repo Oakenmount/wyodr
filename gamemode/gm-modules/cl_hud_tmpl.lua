@@ -1,1 +1,0 @@
-hook.Add("HUDPaint", "swag", function() end)

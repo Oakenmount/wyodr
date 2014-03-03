@@ -1,7 +1,0 @@
-hook.Add("PlayerBindPress", "QuickMenuCmds", function(ply, bind, press)
-	if bind == "+zoom" and press then
-		net.Start("qkmenu_cmd")
-		net.SendToServer()
-		return true
-	end
-end)
