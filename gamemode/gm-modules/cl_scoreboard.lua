@@ -483,3 +483,9 @@ end)
 hook.Add("HUDDrawScoreBoard", "DrawScoreBoard", function()
     return true
 end)
+
+function CoolHUD()
+	draw.RoundedBox(0,ScrW()/2,ScrH()-35,(LocalPlayer():GetVelocity():Length()/1000)*100,25,Color(100,100,100,205))
+
+end
+hook.Add( "HUDPaint", "CoolHUD", CoolHUD )

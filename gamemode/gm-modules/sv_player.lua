@@ -57,13 +57,16 @@ hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
 
 end)
 hook.Add("PlayerLoadout", "PlayerLoadout", function(ply)
+    ply:Give("weapon_crowbar")
 	ply:StripWeapons()
+	return true
 end)
 
 hook.Add("PlayerSpawnAsSpectator", "PlayerSpawnAsSpectator", function(ply)
     ply:StripWeapons()
     ply:SetTeam(TEAM_SPECTATOR)
     ply:Spectate(OBS_MODE_ROAMING)
+    return true
 end)
 
 hook.Add("PlayerSetModel", "PlayerSetModel", function(ply)
@@ -87,6 +90,7 @@ hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
 	if ply:GetObserverMode() == OBS_MODE_NONE and CurTime() > DeathTime then
 		ply:Spectate(OBS_MODE_ROAMING)
 	end
+	return true
 end)
 
 hook.Add("DRPreventTeamJoin", "DRPreventTeamJoin", function(ply,teamid)
@@ -160,5 +164,5 @@ end)
 
 hook.Add("OnPlayerHitGround","StaminaReplicate",function(ply,bool)
 	ply:SetJumpPower(268.4)
-	timer.Simple(0.3,function () ply:SetJumpPower(280) end)
+	timer.Simple(0.2,function () ply:SetJumpPower(280) end)
 end)

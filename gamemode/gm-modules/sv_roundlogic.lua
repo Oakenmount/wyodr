@@ -1,8 +1,8 @@
 
 local default_round_lengths = {
-	[ROUND_WAIT] = 10,
+	[ROUND_WAIT] = 3,
 	[ROUND_ACTIVE] = 60 * 6,
-	[ROUND_POST] = 10	
+	[ROUND_POST] = 5	
 }
 
 local round_stuff = {
