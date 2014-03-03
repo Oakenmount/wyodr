@@ -1,6 +1,4 @@
-include( 'player_class/player_deathrun.lua' )
-
-local basefol = GM.FolderName.."/gamemode/gm-modules/"
+local basefol = GAMEMODE.FolderName .. "/gm-modules/"
 
 local function LoadModuleFolder(modulenm)
 
@@ -8,6 +6,8 @@ local function LoadModuleFolder(modulenm)
 	if modulenm and modulenm ~= "" then
 	    full_folder = full_folder .. modulenm .. "/"
 	end
+	
+	MsgN(full_folder, #select(1, file.Find(full_folder .. "*.lua", "LUA")))
 
 	local files, folders = file.Find(full_folder .. "*", "LUA")
 
@@ -50,6 +50,10 @@ local function LoadModules()
 	MsgN("Loading e modules")
 
 end
+
+LoadModules()
+
+include( 'player_class/player_deathrun.lua' )
 
 GM.Name = "wyodr"
 GM.Author = "Wyozi"
