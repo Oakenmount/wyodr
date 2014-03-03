@@ -1,5 +1,5 @@
 hook.Add("ShowSpare1", "RequestWarden", function(ply)
-	if ply:Team() ~= TEAM_GUARD then return end
+	if ply:Team() ~= TEAM_DEATH then return end
 	
 	ply:SetNWBool("WardenPool",not ply:GetNWBool("WardenPool") or false)
 	if ply:GetNWBool("WardenPool") then
@@ -33,7 +33,7 @@ hook.Add("RoundStart","resetvotes",function()
 		v.Votes = 0
 	end
 	timer.Simple(5,function()
-		for k,v in pairs(team.GetPlayers(TEAM_GUARD)) do
+		for k,v in pairs(team.GetPlayers(TEAM_DEATH)) do
 			if v:GetNWBool("WardenPool") then
 				table.insert(wardenTable,{ent=v,votes = v.Votes})
 			end
@@ -49,7 +49,7 @@ hook.Add("RoundStart","resetvotes",function()
 			
 			winner:IncrAchStat("wardenelect", 1)
 		else
-			local guards = team.GetPlayers(TEAM_GUARD)
+			local guards = team.GetPlayers(TEAM_DEATH)
 			if #guards < 1 then 
 				wyodr.SetRoundState(ROUND_WAIT)
 				hook.Call("RoundPreparing",GAMEMODE)

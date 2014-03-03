@@ -4,7 +4,7 @@ local movein_sound = Sound("npc/combine_soldier/vo/movein.wav")
 
 net.Receive("qkmenu_cmd", function(len, cl)
 	if GetGlobalEntity("Warden") ~= cl then return end
-	if GetGlobalEntity("Warden"):Team() ~= TEAM_GUARD then return end
+	if GetGlobalEntity("Warden"):Team() ~= TEAM_DEATH then return end
 	if not GetGlobalEntity("Warden"):Alive() then return end
 	if cl.NextQuickMenu and cl.NextQuickMenu > CurTime() then return end
 	

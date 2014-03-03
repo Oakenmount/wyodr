@@ -76,7 +76,7 @@ concommand.Add("jb_openwardenmenu", function()
         fn=function()
             local menu = DermaMenu()
             for _,ply in pairs(player.GetAll()) do
-                if ply:Team() == TEAM_PRISONER and ply:Alive() and not ply:GetNWBool("Freeday", false) then
+                if ply:Team() == TEAM_RUNNER and ply:Alive() and not ply:GetNWBool("Freeday", false) then
                     menu:AddOption(ply:Nick(), function()
                         net.Start("GiveFreeday")
                             net.WriteEntity(ply)

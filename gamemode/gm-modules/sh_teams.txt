@@ -1,10 +1,10 @@
-team.SetUp(TEAM_PRISONER,"Prisoners",Color(192, 57, 43))
-team.SetUp(TEAM_GUARD,"Guards",Color(52, 73, 94))
+team.SetUp(TEAM_RUNNER,"Runners",Color(192, 57, 43))
+team.SetUp(TEAM_DEATH,"Death",Color(52, 73, 94))
 team.SetUp(TEAM_SPECTATOR,"Spectator",Color(243, 156, 18))
 
 local team_spawns = {
-	[TEAM_PRISONER] = "info_player_terrorist",
-	[TEAM_GUARD] = "info_player_counterterrorist"
+	[TEAM_RUNNER] = "info_player_terrorist",
+	[TEAM_DEATH] = "info_player_counterterrorist"
 }
 
 hook.Add("PlayerSelectSpawn", "SelectTeamSpawn", function(ply)

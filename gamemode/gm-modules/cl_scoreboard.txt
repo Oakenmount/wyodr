@@ -498,8 +498,8 @@ local SCORE_BOARD =
 		end
 		
 		local teamlabel = vgui.CreateFromTable(TEAM_LABEL_LINE)
-		teamlabel.Name:SetText(team.GetName(TEAM_PRISONER))
-		teamlabel.TeamId = TEAM_PRISONER
+		teamlabel.Name:SetText(team.GetName(TEAM_RUNNER))
+		teamlabel.TeamId = TEAM_RUNNER
 		teamlabel.BGColor = SaturateColor(Color(231, 76, 60))
 		AddTeamLblReceiver(teamlabel, "prisoner")
 		self.PScores:AddItem(teamlabel)	
@@ -520,8 +520,8 @@ local SCORE_BOARD =
 		self.GScores:Dock(RIGHT)
 	
 		local teamlabel = vgui.CreateFromTable(TEAM_LABEL_LINE)
-		teamlabel.Name:SetText(team.GetName(TEAM_GUARD))
-		teamlabel.TeamId = TEAM_GUARD
+		teamlabel.Name:SetText(team.GetName(TEAM_DEATH))
+		teamlabel.TeamId = TEAM_DEATH
 		teamlabel.BGColor = SaturateColor(Color(52, 73, 94))
 		AddTeamLblReceiver(teamlabel, "guard")
 		self.GScores:AddItem(teamlabel)
@@ -571,9 +571,9 @@ local SCORE_BOARD =
 		local plyrs = player.GetAll()
 		for id, pl in pairs( plyrs ) do
 			local targscore = self.SpecScores
-			if pl:Team() == TEAM_PRISONER then
+			if pl:Team() == TEAM_RUNNER then
 				targscore = self.PScores
-			elseif pl:Team() == TEAM_GUARD then
+			elseif pl:Team() == TEAM_DEATH then
 				targscore = self.GScores	
 			end
 			local oldts

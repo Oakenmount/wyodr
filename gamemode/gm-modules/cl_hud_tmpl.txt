@@ -63,8 +63,8 @@ local timer_circle = Material("ejb/timer.png", "smooth")
 local sleekbar = Material("ejb/sleek_healthbar.png", "smooth")
 local sleekbarSpec = Material("ejb/sleek_healthbar-spectate.png", "smooth")
 local timer_teams = {
-	[TEAM_PRISONER] = {mat=Material("ejb/timer-prisoner.png", "smooth"), soff = -0.5, voff = -0.15},
-	[TEAM_GUARD] = {mat=Material("ejb/timer-guard.png", "smooth"), voff = 0.4},
+	[TEAM_RUNNER] = {mat=Material("ejb/timer-prisoner.png", "smooth"), soff = -0.5, voff = -0.15},
+	[TEAM_DEATH] = {mat=Material("ejb/timer-guard.png", "smooth"), voff = 0.4},
 	[TEAM_SPECTATOR] = {mat=Material("ejb/timer-spect.png", "smooth"), soff = -0.5}
 }
 

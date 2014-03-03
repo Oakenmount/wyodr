@@ -3,7 +3,7 @@ if SERVER then
     util.AddNetworkString("GiveFreeday")
     net.Receive("GiveFreeday",function(len,player)
         local target = net.ReadEntity()
-        if IsValid(target) and player == GetGlobalEntity("Warden") and player:Alive() and player:Team() == TEAM_GUARD then
+        if IsValid(target) and player == GetGlobalEntity("Warden") and player:Alive() and player:Team() == TEAM_DEATH then
             if player.FreedaysGiven and player.FreedaysGiven > 5 then
                 player:ChatPrint("TOO MANY FREEDAYS")
                 timer.Simple(60*15, function() if IsValid(player) then player.FreedaysGiven = 0 end end)

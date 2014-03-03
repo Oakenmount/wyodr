@@ -2,7 +2,7 @@
 if SERVER then
     util.AddNetworkString("ZombieFreeday")
     net.Receive("ZombieFreeday",function(len,player)
-        if player == GetGlobalEntity("Warden") and player:Alive() and player:Team() == TEAM_GUARD then
+        if player == GetGlobalEntity("Warden") and player:Alive() and player:Team() == TEAM_DEATH then
             ZombieFreeday()
         end
 end)
@@ -19,7 +19,7 @@ end)
             if GetGlobalFloat("zombiefreedaycooldown") > CurTime() then wyodr.Notify("Zombie freeday is on cooldown!") return end
         SetGlobalBool("ZombieFreeday",true)
         SetGlobalFloat("zombiefreedaycooldown",CurTime() + 60 * 30)
-        for k,v in pairs(team.GetPlayers(TEAM_PRISONER)) do
+        for k,v in pairs(team.GetPlayers(TEAM_RUNNER)) do
             v:StripWeapons()
             v.IsZombie = true
             v:Give("bb_css_knife_alt")
@@ -68,7 +68,7 @@ end
 if CLIENT then
     
     function wardenstartzombiefreeday(player,command)
-    if player == GetGlobalEntity("Warden") and player:Alive() and player:Team() == TEAM_GUARD then
+    if player == GetGlobalEntity("Warden") and player:Alive() and player:Team() == TEAM_DEATH then
         net.Start("ZombieFreeday")
         net.SendToServer()
         
@@ -96,7 +96,7 @@ if CLIENT then
     hook.Add( "RenderScreenspaceEffects", "zombieshit",function()
         if not GetGlobalBool("ZombieFreeday") then return end
         
-        if LocalPlayer():Team() ~= TEAM_PRISONER or LocalPlayer():Alive() == false then return end
+        if LocalPlayer():Team() ~= TEAM_RUNNER or LocalPlayer():Alive() == false then return end
         local tab = {}
     	tab[ "$pp_colour_addr" ] = 0.5
     	tab[ "$pp_colour_addg" ] = 0

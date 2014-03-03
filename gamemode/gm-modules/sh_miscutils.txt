@@ -21,7 +21,7 @@ end
 local playermeta = FindMetaTable("Player")
 
 function playermeta:IsActivePlayer()
-	return (self:Team() == TEAM_GUARD or self:Team() == TEAM_PRISONER)
+	return (self:Team() == TEAM_DEATH or self:Team() == TEAM_RUNNER)
 end
 
 function playermeta:IsAlivePlayer()

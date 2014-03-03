@@ -55,7 +55,7 @@ timer.Create("roundlogic", 1, 0, function()
 	local expired = GetGlobalFloat("roundend") < CurTime()
 	if expired then
 		if state == ROUND_WAIT then
-			local guards, prisoners = team.GetPlayers(TEAM_GUARD), team.GetPlayers(TEAM_PRISONER)
+			local guards, prisoners = team.GetPlayers(TEAM_DEATH), team.GetPlayers(TEAM_RUNNER)
 			if #guards > 0 and #prisoners > 0 then
 				wyodr.SetRoundState(ROUND_ACTIVE)
 				hook.Call("RoundStart",GAMEMODE)
@@ -72,20 +72,20 @@ timer.Create("roundlogic", 1, 0, function()
 	end
 	
 	if state == ROUND_ACTIVE then
-		local guards, prisoners = team.GetPlayers(TEAM_GUARD) , team.GetPlayers(TEAM_PRISONER)
+		local guards, prisoners = team.GetPlayers(TEAM_DEATH) , team.GetPlayers(TEAM_RUNNER)
 		local guard_count, pri_count = #guards, #prisoners
 		table.foreach(guards, function(k,v) if not v:Alive() or  v:GetMoonMode() then guard_count = guard_count-1 end end) 	
 		table.foreach(prisoners, function(k,v) if not v:Alive() or v:GetMoonMode() then pri_count = pri_count-1 end end) 
 		local enough_players = (#guards+#prisoners > 1) or (guard_count == 0 and pri_count == 0) -- >1 players or both teams empty
 		if (guard_count == 0) and enough_players then
 			wyodr.SetRoundState(ROUND_POST)
-			hook.Call("RoundEnd",GAMEMODE,TEAM_PRISONER)
+			hook.Call("RoundEnd",GAMEMODE,TEAM_RUNNER)
 			BroadcastLua([[hook.Call("RoundEnd",GAMEMODE,nil)]])
 			SetGlobalBool("WardenActive",false)
 			wyodr.Notify("Prisoners won!")
 		elseif (pri_count == 0) and enough_players then
 			wyodr.SetRoundState(ROUND_POST)
-			hook.Call("RoundEnd",GAMEMODE,TEAM_GUARD)
+			hook.Call("RoundEnd",GAMEMODE,TEAM_DEATH)
 			BroadcastLua([[hook.Call("RoundEnd",GAMEMODE,nil)]])
 			wyodr.Notify("Guards won!")
 		end

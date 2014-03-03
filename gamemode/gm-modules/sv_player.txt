@@ -2,11 +2,11 @@ function GAMEMODE:PlayerInitialSpawn(ply)
 	if wyodr.GetRoundState() == ROUND_ACTIVE then
 		ply:SetTeam(TEAM_SPECTATOR)
 	else
-		ply:SetTeam(TEAM_PRISONER)
+		ply:SetTeam(TEAM_RUNNER)
 	end
 end
 function GAMEMODE:PlayerSpawn(ply)
-	if ply:Team() ~= TEAM_GUARD and ply:Team() ~= TEAM_PRISONER then
+	if ply:Team() ~= TEAM_DEATH and ply:Team() ~= TEAM_RUNNER then
 		GAMEMODE:PlayerSpawnAsSpectator(ply)
 		return
 	end
@@ -27,9 +27,6 @@ function GAMEMODE:PlayerSpawn(ply)
     hook.Call("PlayerSetModel", GAMEMODE, ply)
     hook.Call("PlayerLoadout", GAMEMODE, ply)
     
-	if ply:Team() == TEAM_GUARD then
-		ply:SetArmor(25)
-	end
 
 	local oldhands = ply:GetHands()
 	if ( IsValid( oldhands ) ) then oldhands:Remove() end
@@ -61,10 +58,6 @@ function GAMEMODE:PlayerSpawn(ply)
 end
 function GAMEMODE:PlayerLoadout(ply)
 	ply:StripWeapons()
-	ply:Give("weapon_jb_fists")
-	if ply:Team() == TEAM_PRISONER and math.random(1,4) == 1 then
-		ply:Give("bb_css_knife_alt")
-	end
 end
 
 function GAMEMODE:PlayerSpawnAsSpectator(ply)
@@ -77,9 +70,9 @@ end
 function GAMEMODE:PlayerSetModel(ply)
 	local team = ply:Team()
 	local model
-	if team == TEAM_PRISONER then
+	if team == TEAM_RUNNER then
 		model = "models/player/group03/male_0"..math.random(1,9)..".mdl"
-	elseif team == TEAM_GUARD then
+	elseif team == TEAM_DEATH then
 		model = "models/player/combine_soldier.mdl"
 	end
 	
@@ -98,15 +91,15 @@ function GAMEMODE:PlayerDeathThink(ply)
 end
 
 function GAMEMODE:JBPreventTeamJoin(ply,teamid)
-	local prisoners = team.NumPlayers(TEAM_PRISONER)
-	local guards = team.NumPlayers(TEAM_GUARD)
+	local prisoners = team.NumPlayers(TEAM_RUNNER)
+	local guards = team.NumPlayers(TEAM_DEATH)
 	
 	if guards == 0 then return false end
 	
-	if teamid == TEAM_GUARD and ply:Team() == TEAM_PRISONER and (((prisoners  - 1) / (guards + 1)) < GetConVarNumber("jb_guard_ratio")) then
+	if teamid == TEAM_DEATH and ply:Team() == TEAM_RUNNER and (((prisoners  - 1) / (guards + 1)) < GetConVarNumber("jb_guard_ratio")) then
 		wyodr.ErrorMsg(ply,"Team is full! Ratio must be 1:"..GetConVarNumber("jb_guard_ratio"))
 		return true
-	elseif teamid == TEAM_GUARD and ply:Team() == TEAM_SPECTATOR and (((prisoners ) / (guards + 1)) < GetConVarNumber("jb_guard_ratio")) then
+	elseif teamid == TEAM_DEATH and ply:Team() == TEAM_SPECTATOR and (((prisoners ) / (guards + 1)) < GetConVarNumber("jb_guard_ratio")) then
 		wyodr.ErrorMsg(ply,"Team is full! Ratio must be 1:"..GetConVarNumber("jb_guard_ratio"))
 		return true
 	end
@@ -170,16 +163,16 @@ end)
 
 local function TeamBalance()
 	
-	local numGuard = team.NumPlayers(TEAM_GUARD)
-	local numPrisoner = team.NumPlayers(TEAM_PRISONER)
+	local numGuard = team.NumPlayers(TEAM_DEATH)
+	local numPrisoner = team.NumPlayers(TEAM_RUNNER)
 	
 	if #player.GetAll() < (GetConVarNumber("jb_guard_ratio") + 1) or numGuard <= 1 then return end
 	
 	if ((numPrisoner) / numGuard) < GetConVarNumber("jb_guard_ratio") then
-		local randomMember = math.random(1,#team.GetPlayers(TEAM_GUARD))
-		local affected_pl = team.GetPlayers(TEAM_GUARD)[randomMember]
+		local randomMember = math.random(1,#team.GetPlayers(TEAM_DEATH))
+		local affected_pl = team.GetPlayers(TEAM_DEATH)[randomMember]
 		wyodr.Notify(affected_pl:Nick().." was moved due to teambalance!")
-		affected_pl:SetTeam(TEAM_PRISONER)
+		affected_pl:SetTeam(TEAM_RUNNER)
 		TeamBalance()
 	end
 	
@@ -217,7 +210,7 @@ end)
 
 function GAMEMODE:PlayerCanHearPlayersVoice(listener, talker)
 	if listener:GetDeafMode() then return false end -- If deafmode, dont transmit any voices
-	return (((talker:Team() ~= TEAM_PRISONER or not wyodr.PrisonersMuted) and (talker:IsAlivePlayer() or (not listener:IsAlivePlayer()))) or wyodr.GetRoundState() ~= ROUND_ACTIVE) or talker:IsAdmin()
+	return (((talker:Team() ~= TEAM_RUNNER or not wyodr.PrisonersMuted) and (talker:IsAlivePlayer() or (not listener:IsAlivePlayer()))) or wyodr.GetRoundState() ~= ROUND_ACTIVE) or talker:IsAdmin()
 end
 
 hook.Add("PlayerDeath","notifyvictim",function(victim,ent,killer)

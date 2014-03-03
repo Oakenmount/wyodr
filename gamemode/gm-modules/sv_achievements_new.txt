@@ -88,9 +88,9 @@ end)
 hook.Add("PlayerDeath", "AchPlyDeath", function(ply, infl, attacker)
     if IsValid(attacker) and attacker:IsPlayer() and ply ~= attacker and wyodr.GetRoundState() == ROUND_ACTIVE then
         local plyteam = ply:Team()
-        if plyteam == TEAM_PRISONER then
+        if plyteam == TEAM_RUNNER then
             attacker:IncrAchStat("prisonerkills")
-        elseif plyteam == TEAM_GUARD then
+        elseif plyteam == TEAM_DEATH then
             attacker:IncrAchStat("guardkills")
         end
     end
