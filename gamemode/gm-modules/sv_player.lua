@@ -91,8 +91,8 @@ end)
 
 hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
     local DeathTime = DeathTime or CurTime() + 0.8
-    if CurTime() < DeathTime then return end
-    
+    if CurTime() < DeathTime then return truew end
+    if wyodr.GetRoundState() == ROUND_POST then return true end
     if #team.GetPlayers(TEAM_DEATH) < 1 then
         ply:Spawn()
         return true
@@ -185,5 +185,13 @@ end)
 hook.Add("OnPlayerHitGround","StaminaReplicate",function(ply,bool)
 	ply:SetJumpPower(268.4)
 	timer.Simple(0.2,function () ply:SetJumpPower(280) end)
+end)
+
+timer.Create("HealthRegen",1,0,function()
+    for k,v in pairs(team.GetPlayers(TEAM_RUNNER)) do
+        if v:Health() < v:MaxHealth() then
+            v:SetHealth(v:Health() + 1)
+        end
+    end
 end)
 
