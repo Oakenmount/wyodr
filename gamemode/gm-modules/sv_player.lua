@@ -166,6 +166,14 @@ hook.Add("EntityTakeDamage", "MMDmgBlock", function(target, dmginfo)
 	end
 end)
 
+
+hook.Add("EntityTakeDamage", "TeamDmgBlock", function(ent, inflictor, attacker)
+	if target:Team() == attacker:Team() then
+		dmginfo:SetDamage(0)
+	end
+end)                                    
+
+
 hook.Add("PlayerCanHearPlayersVoice", "DeafModeStuff", function(listener, talker)
 	if listener:GetDeafMode() then return false end -- If deafmode, dont transmit any voices
 end)
@@ -174,3 +182,4 @@ hook.Add("OnPlayerHitGround","StaminaReplicate",function(ply,bool)
 	ply:SetJumpPower(268.4)
 	timer.Simple(0.2,function () ply:SetJumpPower(280) end)
 end)
+
