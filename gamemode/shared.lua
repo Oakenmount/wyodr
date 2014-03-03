@@ -1,4 +1,3 @@
-include( 'player_class/player_deathrun.lua' )
 
 local basefol = GM.FolderName.."/gamemode/gm-modules/"
 
@@ -72,5 +71,5 @@ function wyodr.PersistLog(msg)
 	wyodr.Debug(msg)
 end
 
-LoadModules()
---hook.Add("InitPostEntity", "LoadGamemode", LoadModules)
+--LoadModules()
+hook.Add("InitPostEntity", "LoadGamemode", LoadModules)

@@ -295,145 +295,6 @@ local TEAM_LABEL_LINE =
 --
 TEAM_LABEL_LINE = vgui.RegisterTable( TEAM_LABEL_LINE, "DButton" );
 
-wyodr.EventLogCache = wyodr.EventLogCache or {}
-wyodr.AddRawEventEntry = function(datatbl, ...)
-	if not IsValid(wyodr.EventLogElement) then return MsgN("ele fail: not added to event log") end
-	local el = wyodr.EventLogElement
-	
-	local panel = vgui.Create("DPanel")
-	el:AddItem(panel)
-	panel:SetPaintBackground(false)
-	
-	panel.DataTbl = datatbl
-	
-	wyodr.LastAddedLine = panel
-	
-	local x = 0
-	local font = "Trebuchet18"
-	surface.SetFont(font)
-	for k,v in ipairs({...}) do
-		local lbl = panel:Add("DButton")
-		lbl:SetDrawBackground(false)
-		lbl:SetDrawBorder(false)
-		local clr, txt = Color(255, 255, 255), ""
-		--[[if type(v) == "Entity" then
-			clr, txt = Color(255, 127, 0), IsValid(v) and v:GetClass() or "-invalid-"
-		elseif type(v) == "Player" then
-			if IsValid(v) then
-				clr, txt = team.GetColor(v:Team()), v:Nick()
-				lbl.DoRightClick = function()
-					local menu = DermaMenu()
-					menu:AddOption("Slay", function() RunConsoleCommand("ulx", "slay", "$" .. v:UserID()) end)
-					menu:AddOption("Guardban", function() RunConsoleCommand("ulx", "banguard", "$" .. v:UserID()) end)
-					menu:Open()
-				end	
-			else
-				clr, txt = Color(192, 192, 192), "-invalid-"
-			end
-		else]]
-		if type(v) == "table" and v.type == "ply" then
-			txt = v.nick
-			local plyobj = ULib.getPlyByID(v.sid)
-			if plyobj then
-				clr = team.GetColor(v.tid or plyobj:Team())
-			else
-				clr = Color(180, 180, 180)
-			end
-			lbl.DoRightClick = function()
-				local ply = ULib.getPlyByID(v.sid)
-				
-				local menu = DermaMenu()
-				menu:AddOption(v.nick, function() gui.OpenURL("http://steamcommunity.com/profiles/" .. util.SteamIDTo64(v.sid)) end)
-				menu:AddSpacer()
-				menu:AddOption("Ban", function() RunConsoleCommand("ulx", "banid", v.sid) end)
-				menu:AddOption("Copy SteamID", function() SetClipboardText(v.sid) end)
-				if ply then
-					menu:AddOption("Slay", function() RunConsoleCommand("ulx", "slay", "$" .. ply:UserID()) end)
-					menu:AddOption("Guardban", function() RunConsoleCommand("ulx", "banguard", "$" .. ply:UserID()) end)
-				end
-				menu:Open()
-			end
-		elseif type(v) == "table" and v.type == "ent" then
-			clr, txt = Color(52, 73, 94), v.cls
-		else
-			if type(v) == "table" then
-				clr = v.clr or clr
-				txt = v.txt or ""
-			elseif type(v) == "number" then
-				txt = tostring(v)
-				clr = Color(39, 174, 96)
-			else
-				txt = tostring(v)
-			end
-			lbl:SetCursor("normal")
-		end
-		lbl:SetColor(clr)
-		lbl:SetText(txt or "")
-		lbl:SetFont(font)
-		local width, height = surface.GetTextSize(txt or "")
-		lbl:SetWide(width)
-		lbl:SetTall(height)
-		lbl:SetPos(x, 0)
-		lbl.OnMouseWheeled = function(self, dt) wyodr.EventLogScrollElement.OnMouseWheeled(wyodr.EventLogScrollElement, dt) end
-		x = x + width
-	end
-	panel:SetTall(14)
-	--panel:SetPos(0, 0)
-	
-	wyodr.EventLogScrollElement:InvalidateLayout(true, true)
-	--el:InvalidateLayout(true, true)
-end
-wyodr.AddEventEntry = function(...)
-	wyodr.AddRawEventEntry(nil, {txt=string.format("[%s] ", os.date("%H:%M:%S")), clr=Color(255,127,0)}, ...)
-	table.insert(wyodr.EventLogCache, {msg={...}, time=os.time()})
-	timer.Simple(0.2, function()
-		if IsValid(wyodr.EventLogScrollElement) then wyodr.EventLogScrollElement.VBar:AddScroll(999999) end
-	end)
-end
-
-local function GetPlyEventTable(plystr)
-	if not plystr then return "-invalid-" end
-	local sid, nick, ply, teamid = wyodr.UnpackPlyString(plystr)
-	if sid and sid ~= "" then return {type="ply", nick=nick, sid=sid, tid=teamid} end
-	return {type="ent", cls=nick}
-end
-
-local event_tbl_translate = {
-	kill = function(datatbl)
-		return GetPlyEventTable(datatbl.att), " killed ", GetPlyEventTable(datatbl.vic)
-	end,
-	dmg = function(datatbl)
-		return GetPlyEventTable(datatbl.att), " damaged ", GetPlyEventTable(datatbl.vic), " for ", datatbl.dmg, " using ", {txt=datatbl.wep, clr=Color(155, 89, 182)}
-	end
-}
-
-wyodr.AddEventTblEntry = function(tbl)
-	if not event_tbl_translate[tbl.t] then
-		return ErrorNoHalt("translating unknown event type " .. tbl.t)
-	end
-	local translated = {event_tbl_translate[tbl.t](tbl)}
-	wyodr.AddRawEventEntry(tbl, {txt=string.format("[%s] ", os.date("%H:%M:%S")), clr=Color(255,127,0)}, unpack(translated))
-	table.insert(wyodr.EventLogCache, {DataTbl=tbl, msg=translated, time=os.time()})
-	if IsValid(wyodr.EventLogScrollElement) then wyodr.EventLogScrollElement.VBar:AddScroll(999999) end
-end
-net.Receive("ejb_evententry", function()
-	local is_text_table = net.ReadBit() == 1
-	if is_text_table then
-		wyodr.AddEventEntry(unpack(net.ReadTable()))
-	else
-		wyodr.AddEventTblEntry(net.ReadTable())
-	end
-end)
-
-hook.Add("RoundStart", "EJBEV", function()
-	table.Empty(wyodr.EventLogCache)
-	wyodr.AddEventEntry("Round started")
-end)
-
-hook.Add("RoundEnd", "EJBEV", function()
-	wyodr.AddEventEntry("Round ended")
-end)
-
 local SCORE_BOARD = 
 {
 	Init = function( self )
@@ -594,7 +455,7 @@ local SCORE_BOARD =
 
 SCORE_BOARD = vgui.RegisterTable( SCORE_BOARD, "EditablePanel" );
 
-function GAMEMODE:ScoreboardShow()
+hook.Add("ScoreboardShow", "ShowScoreBoard", function()
 
 	if ( IsValid( g_Scoreboard ) ) then
 		g_Scoreboard:Remove()
@@ -606,18 +467,19 @@ function GAMEMODE:ScoreboardShow()
 		g_Scoreboard:MakePopup()
 		g_Scoreboard:SetKeyboardInputEnabled( false )
 	end
+	
+	return true
+end)
 
-end
-
-function GAMEMODE:ScoreboardHide()
+hook.Add("ScoreboardHide", "HideScoreBoard", function()
 
 	if ( IsValid( g_Scoreboard ) ) then
 		g_Scoreboard:Hide()
 	end
+	
+	return true
+end)
 
-end
-
-function GAMEMODE:HUDDrawScoreBoard()
-
-end
-
+hook.Add("HUDDrawScoreBoard", "DrawScoreBoard", function()
+    return true
+end)
