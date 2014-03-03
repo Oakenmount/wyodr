@@ -1,12 +1,11 @@
 hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
-    print(ply,"spawned")
     ply:SetTeam(TEAM_RUNNER)
     ply:Spawn()
 	if wyodr.GetRoundState() == ROUND_ACTIVE then
 	    ply:SetTeam(TEAM_SPECTATOR)
 		ply:SilentKill()
 	end
-	print(team.GetName(ply:Team()))
+	return true
 end)
 
 hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
@@ -58,7 +57,8 @@ hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
 		
 		hands:Spawn()
 	end
-
+	
+    return true
 end)
 hook.Add("PlayerLoadout", "PlayerLoadout", function(ply)
 	ply:StripWeapons()

@@ -326,9 +326,6 @@ local SCORE_BOARD =
 			
 			wyodr.EventLogElement = self.EventLog
 			
-			for _,v in ipairs(wyodr.EventLogCache) do
-				wyodr.AddRawEventEntry(v.DataTbl, {txt=string.format("[%s] ", os.date("%H:%M:%S", v.time)), clr=Color(255,127,0)}, unpack(v.msg))
-			end	
 			
 			timer.Simple(0.5, function() if IsValid(self.EventLogScroll) and IsValid(self.EventLogScroll.VBar) then self.EventLogScroll.VBar:AddScroll(99999) end end)
 		end)
