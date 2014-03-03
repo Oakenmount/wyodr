@@ -47,6 +47,7 @@ local function LoadModules()
 	end
 	
 	LoadModuleFolder("")
+	MsgN("Loading e modules")
 
 end
 
@@ -68,6 +69,8 @@ function wyodr.PersistLog(msg)
 	local f = file.Open("wyodrlog" .. tostring(SERVER and "_sv" or "_cl") .. ".txt", "a", "DATA")
 	f:Write(msg .. "\n")
 	f:Close()
+	
+	wyodr.Debug(msg)
 end
 
 LoadModules()
