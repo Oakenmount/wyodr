@@ -1,11 +1,11 @@
-function GAMEMODE:PlayerInitialSpawn(ply)
+hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
 	if wyodr.GetRoundState() == ROUND_ACTIVE then
 		ply:SetTeam(TEAM_SPECTATOR)
 	else
 		ply:SetTeam(TEAM_RUNNER)
 	end
-end
-function GAMEMODE:PlayerSpawn(ply)
+end)
+hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
 	if ply:Team() ~= TEAM_DEATH and ply:Team() ~= TEAM_RUNNER then
 		GAMEMODE:PlayerSpawnAsSpectator(ply)
 		return
@@ -55,19 +55,18 @@ function GAMEMODE:PlayerSpawn(ply)
 		hands:Spawn()
 	end
 
-end
-function GAMEMODE:PlayerLoadout(ply)
+end)
+hook.Add("PlayerLoadout", "PlayerLoadout", function(ply)
 	ply:StripWeapons()
-end
+end)
 
-function GAMEMODE:PlayerSpawnAsSpectator(ply)
+hook.Add("PlayerSpawnAsSpectator", "PlayerSpawnAsSpectator", function(ply)
     ply:StripWeapons()
-	ply:SetNWBool("FreshMeat",true)
     ply:SetTeam(TEAM_SPECTATOR)
     ply:Spectate(OBS_MODE_ROAMING)
-end
+end)
 
-function GAMEMODE:PlayerSetModel(ply)
+hook.Add("PlayerSetModel", "PlayerSetModel", function(ply)
 	local team = ply:Team()
 	local model
 	if team == TEAM_RUNNER then
@@ -77,20 +76,20 @@ function GAMEMODE:PlayerSetModel(ply)
 	end
 	
 	if model then ply:SetModel(model) end
-end
+end)
 
-function GAMEMODE:PlayerDeathSound()
+hook.Add("PlayerDeathSound", "PlayerDeathSound", function()
 	return true
-end
+end)
 
-function GAMEMODE:PlayerDeathThink(ply)
+hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
     local DeathTime = DeathTime or CurTime() + 1.2
 	if ply:GetObserverMode() == OBS_MODE_NONE and CurTime() > DeathTime then
 		ply:Spectate(OBS_MODE_ROAMING)
 	end
-end
+end)
 
-function GAMEMODE:DRPreventTeamJoin(ply,teamid)
+hook.Add("DRPreventTeamJoin", "DRPreventTeamJoin", function(ply,teamid)
 	local runners = team.NumPlayers(TEAM_RUNNER)
 	local deaths = team.NumPlayers(TEAM_DEATH)
 	
@@ -104,8 +103,7 @@ function GAMEMODE:DRPreventTeamJoin(ply,teamid)
 		return true
 	end
 	return false
-end
-
+end)
 
 util.AddNetworkString("teamChange")
 net.Receive("teamChange",function(len,ply)

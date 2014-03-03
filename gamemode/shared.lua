@@ -71,5 +71,5 @@ function wyodr.PersistLog(msg)
 	wyodr.Debug(msg)
 end
 
---LoadModules()
-hook.Add("InitPostEntity", "LoadGamemode", LoadModules)
+LoadModules()
+--hook.Add("InitPostEntity", "LoadGamemode", LoadModules)

@@ -6,8 +6,7 @@ local spec_mode_cycle = {
 	OBS_MODE_CHASE,
 }
 
--- FINLAND STRONK NOKIA STRONK LEGO IS KILL!
-function GAMEMODE:KeyPress( ply, key )
+hook.Add("KeyPress", "DetectSpecPlyKeys", function( ply, key )
 	if ply:Team() ~= TEAM_SPECTATOR and ply:Alive() then return end -- only specs pls
 	
 	if ( key == IN_ATTACK or key == IN_ATTACK2 ) then
@@ -41,7 +40,7 @@ function GAMEMODE:KeyPress( ply, key )
 			ply:Spectate(OBS_MODE_ROAMING)
 		end
 	end
-end
+end)
 
 util.AddNetworkString("wyodr_specply")
 net.Receive("wyodr_specply", function(len, cl)
