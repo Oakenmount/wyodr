@@ -90,15 +90,15 @@ hook.Add("PlayerDeathSound", "PlayerDeathSound", function()
 end)
 
 hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
-    local DeathTime = DeathTime or CurTime() + 1.2
-    local DeathTime2 = DeathTime2 or CurTime() + 0.5
+    local DeathTime = DeathTime or CurTime() + 0.8
+    if CurTime() < DeathTime then return end
+    
     if #team.GetPlayers(TEAM_DEATH) < 1 then
-        if CurTime() > DeathTime2 then
-            ply:Spawn()
-        end
+        ply:Spawn()
+        return
     end
     
-	if ply:GetObserverMode() == OBS_MODE_NONE and CurTime() > DeathTime then
+	if ply:GetObserverMode() == OBS_MODE_NONE then
 		ply:Spectate(OBS_MODE_ROAMING)
 	end
 	return true
