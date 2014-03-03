@@ -1,1 +1,1 @@
-concommand.Add("sup", function() print("nm") end)
+print("test")
