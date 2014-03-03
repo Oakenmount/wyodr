@@ -91,8 +91,11 @@ end)
 
 hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
     local DeathTime = DeathTime or CurTime() + 1.2
+    local DeathTime2 = DeathTime2 or CurTime() + 0.5
     if #team.GetPlayers(TEAM_DEATH) < 1 then
-        ply:Spawn()
+        if CurTime() > DeathTime2 then
+            ply:Spawn()
+        end
     end
     
 	if ply:GetObserverMode() == OBS_MODE_NONE and CurTime() > DeathTime then
@@ -169,7 +172,7 @@ end)
 
 hook.Add("EntityTakeDamage", "TeamDmgBlock", function(target, dmginfo)
     local attacker = dmginfo:GetAttacker()
-	if target:Team() == attacker:Team() and target:IsPlayer() and attacker:IsPlayer() then
+	if target:IsPlayer() and attacker:IsPlayer() and target:Team() == attacker:Team() then
 		dmginfo:SetDamage(0)
 	end
 end)                                    
