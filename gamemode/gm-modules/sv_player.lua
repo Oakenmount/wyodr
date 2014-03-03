@@ -167,8 +167,9 @@ hook.Add("EntityTakeDamage", "MMDmgBlock", function(target, dmginfo)
 end)
 
 
-hook.Add("EntityTakeDamage", "TeamDmgBlock", function(ent, inflictor, attacker)
-	if target:Team() == attacker:Team() then
+hook.Add("EntityTakeDamage", "TeamDmgBlock", function(target, dmginfo)
+    local attacker = dmginfo:GetAttacker()
+	if target:Team() == attacker:Team() and target:IsPlayer() and attacker:IsPlayer() then
 		dmginfo:SetDamage(0)
 	end
 end)                                    
