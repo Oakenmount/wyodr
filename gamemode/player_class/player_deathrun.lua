@@ -18,6 +18,10 @@ PLAYER.StartArmor	= 0	-- How much armour we start with
 PLAYER.DropWeaponOnDie	= false	-- Do we drop our weapon when we die
 PLAYER.TeammateNoCollide = true	-- Do we collide with teammates or run straight through them
 PLAYER.AvoidPlayers	= false	-- Automatically swerves around other players
+PLAYER.JumpPower( math.sqrt(2 * 800 * 57.0) ) -- 2 * gravity * height
+PLAYER.Hull( Vector( -16, -16, 0 ), Vector( 16, 16, 62 ) )
+PLAYER.HullDuck( Vector( -16, -16, 0 ), Vector( 16, 16, 45 ) )
+
 
 function PLAYER:SetupDataTables()
 	BaseClass.SetupDataTables( self )
