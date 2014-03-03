@@ -1,10 +1,13 @@
 hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
+    print(ply,"spawned")
+    ply:SetTeam(TEAM_RUNNER)
 	if wyodr.GetRoundState() == ROUND_ACTIVE then
+	    ply:SetTeam(TEAM_SPECTATOR)
 		ply:SilentKill()
 	end
-	
-	ply:SetTeam(TEAM_RUNNER)
+	print(team.GetName(ply:Team()))
 end)
+
 hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
 	if ply:Team() ~= TEAM_DEATH and ply:Team() ~= TEAM_RUNNER then
 		GAMEMODE:PlayerSpawnAsSpectator(ply)
