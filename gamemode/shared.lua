@@ -34,11 +34,6 @@ local function LoadModuleFolder(modulenm)
 		if CLIENT then include(full_folder .. clfile) end
 		wyodr.PersistLog("Loading cl module " .. clfile)
 	end
-	
-	if modulenm == "" then
-	    LOADEDCLSV = {files, folders}    
-	end
-
 end
 
 local function LoadModules()
@@ -78,3 +73,4 @@ function wyodr.PersistLog(msg)
 end
 
 LoadModules()
+--hook.Add("InitPostEntity", "LoadGamemode", LoadModules)
