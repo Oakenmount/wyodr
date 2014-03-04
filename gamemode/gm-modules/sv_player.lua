@@ -90,12 +90,8 @@ hook.Add("PlayerDeathSound", "PlayerDeathSound", function()
 end)
 
 hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
-    local DeathTime = DeathTime or CurTime() + 0.8
-    print(DeathTime)
+    local DeathTime = DeathTime or (CurTime() + 0.8)
     if CurTime() < DeathTime then return true end
-    print(wyodr.GetRoundState() == ROUND_POST)
-    print(#team.GetPlayers(TEAM_DEATH) < 1)
-    print(ply:GetObserverMode())
     if wyodr.GetRoundState() == ROUND_POST then return true end
     if #team.GetPlayers(TEAM_DEATH) < 1 then
         ply:Spawn()
