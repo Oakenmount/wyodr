@@ -91,7 +91,11 @@ end)
 
 hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
     local DeathTime = DeathTime or CurTime() + 0.8
+    print(DeathTime)
     if CurTime() < DeathTime then return true end
+    print(wyodr.GetRoundState() == ROUND_POST)
+    print(#team.GetPlayers(TEAM_DEATH) < 1)
+    print(ply:GetObserverMode())
     if wyodr.GetRoundState() == ROUND_POST then return true end
     if #team.GetPlayers(TEAM_DEATH) < 1 then
         ply:Spawn()
@@ -100,6 +104,7 @@ hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
     
 	if ply:GetObserverMode() == OBS_MODE_NONE then
 		ply:Spectate(OBS_MODE_ROAMING)
+		return true
 	end
 	return true
 end)
