@@ -89,9 +89,9 @@ hook.Add("PlayerDeathSound", "PlayerDeathSound", function()
 	return true
 end)
 
-hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
-    local DeathTime = DeathTime or (CurTime() + 0.8)
-    if CurTime() < DeathTime then return true end
+function GAMEMODE:PlayDeathThink(ply)
+    local DeathTime = DeathTime or CurTime() + 1
+    if CurTime() < DeathTime then return end
     if wyodr.GetRoundState() == ROUND_POST then return true end
     if #team.GetPlayers(TEAM_DEATH) < 1 then
         ply:Spawn()
@@ -103,7 +103,7 @@ hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
 		return true
 	end
 	return true
-end)
+end
 
 hook.Add("DRPreventTeamJoin", "DRPreventTeamJoin", function(ply,teamid)
 	local runners = team.NumPlayers(TEAM_RUNNER)
@@ -190,7 +190,7 @@ end)
 
 timer.Create("HealthRegen",1,0,function()
     for k,v in pairs(team.GetPlayers(TEAM_RUNNER)) do
-        if v:Health() < v:GetMaxHealth() then
+        if v:Health() < v:GetMaxHealth() and v:Alive() then
             v:SetHealth(v:Health() + 1)
         end
     end
