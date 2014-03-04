@@ -89,9 +89,16 @@ hook.Add("PlayerDeathSound", "PlayerDeathSound", function()
 	return true
 end)
 
-function GAMEMODE:PlayDeathThink(ply)
-    local DeathTime = DeathTime or CurTime() + 1
-    if CurTime() < DeathTime then return end
+
+
+
+hook.Add( "PlayerDeath", "player_initalize_dvars", function(ply,wep,kil)
+    ply.nextspawn = CurTime() + 0.8
+end)
+
+
+hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
+    if CurTime() < ply.nextspawn then return true end
     if wyodr.GetRoundState() == ROUND_POST then return true end
     if #team.GetPlayers(TEAM_DEATH) < 1 then
         ply:Spawn()
@@ -103,7 +110,7 @@ function GAMEMODE:PlayDeathThink(ply)
 		return true
 	end
 	return true
-end
+end)
 
 hook.Add("DRPreventTeamJoin", "DRPreventTeamJoin", function(ply,teamid)
 	local runners = team.NumPlayers(TEAM_RUNNER)
