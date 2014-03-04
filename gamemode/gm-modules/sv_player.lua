@@ -15,7 +15,7 @@ hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
 	end
     
     ply:AllowFlashlight(true)
-    ply:SetRunSpeed(325)
+    ply:SetRunSpeed(250)
     ply:SetWalkSpeed(250)
     ply:SetJumpPower( math.sqrt(2 * 800 * 57.0) ) -- 2 * gravity * height
     ply:SetHull( Vector( -16, -16, 0 ), Vector( 16, 16, 62 ) )
