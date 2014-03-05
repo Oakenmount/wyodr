@@ -191,8 +191,11 @@ hook.Add("PlayerCanHearPlayersVoice", "DeafModeStuff", function(listener, talker
 end)
 
 hook.Add("OnPlayerHitGround","StaminaReplicate",function(ply,bool)
-	ply:SetJumpPower(268.4)
-	timer.Simple(0.2,function () ply:SetJumpPower(280) end)
+	timer.Simple(0.2,function () 
+        if not ply:OnGround() then
+            ply:SetVelocity(ply:GetForward() * 10)
+        end
+    end)
 end)
 
 timer.Create("HealthRegen",1,0,function()
