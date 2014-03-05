@@ -3,7 +3,7 @@ hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
     ply:Spawn()
 	if wyodr.GetRoundState() == ROUND_ACTIVE then
 	    ply:SetTeam(TEAM_SPECTATOR)
-		ply:SilentKill()
+		ply:KillSilent()
 	end
 	return true
 end)
@@ -88,9 +88,6 @@ end)
 hook.Add("PlayerDeathSound", "PlayerDeathSound", function()
 	return true
 end)
-
-
-
 
 hook.Add( "PlayerDeath", "player_initalize_dvars", function(ply,wep,kil)
     ply.nextspawn = CurTime() + 0.8
