@@ -183,6 +183,7 @@ end)
 
 hook.Add("PlayerCanHearPlayersVoice", "DeafModeStuff", function(listener, talker)
 	if listener:GetDeafMode() then return false end -- If deafmode, dont transmit any voices
+	return true
 end)
 
 hook.Add("OnPlayerHitGround","StaminaReplicate",function(ply,bool)
