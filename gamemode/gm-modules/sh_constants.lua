@@ -7,7 +7,7 @@ ROUND_ACTIVE = 2
 ROUND_POST = 3
 
 wyodr.RoundLengths = {
-	[ROUND_WAIT] = 3,
+	[ROUND_WAIT] = 2,
 	[ROUND_ACTIVE] = 60 * 6,
-	[ROUND_POST] = 5	
+	[ROUND_POST] = 3	
 }
