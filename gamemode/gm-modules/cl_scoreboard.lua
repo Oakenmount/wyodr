@@ -235,8 +235,6 @@ local PLAYER_LINE =
 		addCmd("respawn", "Respawn")
 		--addCmd("kick", "Kick")
 		addCmd("slay", "Slay")
-		addCmd("swap", "Swap Team")
-		addCmd("banguard", "Ban from guard")
 		addCmd("gag", "Gag")
 		addCmd("mute", "Mute")
 		menu:Open()	
@@ -359,9 +357,9 @@ local SCORE_BOARD =
 		teamlabel.Name:SetText(team.GetName(TEAM_RUNNER))
 		teamlabel.TeamId = TEAM_RUNNER
 		teamlabel.BGColor = SaturateColor(Color(231, 76, 60))
-		AddTeamLblReceiver(teamlabel, "prisoner")
+		AddTeamLblReceiver(teamlabel, "runner")
 		self.PScores:AddItem(teamlabel)	
-		AddTeamLblReceiver(self.PScores, "prisoner")
+		AddTeamLblReceiver(self.PScores, "runner")
 		
 		self.SpecScores = self.TheScores:Add( "DScrollPanel" )
 		self.SpecScores:Dock(FILL)
@@ -381,9 +379,9 @@ local SCORE_BOARD =
 		teamlabel.Name:SetText(team.GetName(TEAM_DEATH))
 		teamlabel.TeamId = TEAM_DEATH
 		teamlabel.BGColor = SaturateColor(Color(52, 73, 94))
-		AddTeamLblReceiver(teamlabel, "guard")
+		AddTeamLblReceiver(teamlabel, "death")
 		self.GScores:AddItem(teamlabel)
-		AddTeamLblReceiver(self.GScores, "guard")
+		AddTeamLblReceiver(self.GScores, "death")
 	end,
 	
 	PerformLayout = function( self )
