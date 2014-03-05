@@ -2,7 +2,6 @@ hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
     ply:SetTeam(TEAM_RUNNER)
     ply:Spawn()
 	if wyodr.GetRoundState() == ROUND_ACTIVE then
-	    ply:SetTeam(TEAM_SPECTATOR)
 		ply:KillSilent()
 	end
 	return true
