@@ -31,6 +31,10 @@ hook.Add("HUDPaint", "YouGottaDrawTheHUD", function()
 end)
 
 hook.Add("CalcView", "DeathView", function(pl, origin, angles, fov)
+    --[[
+    
+    Noone likes you jacob
+    
     local ragdoll = pl:GetRagdollEntity()
     if( !ragdoll or ragdoll == NULL or !ragdoll:IsValid() ) then return end
       
@@ -42,7 +46,5 @@ hook.Add("CalcView", "DeathView", function(pl, origin, angles, fov)
 		fov = 90, 
     }
     
-    
-    return view
-     
+    return view]]
 end)
