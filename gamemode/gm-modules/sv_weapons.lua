@@ -1,5 +1,6 @@
 function GAMEMODE:PlayerCanPickupWeapon(ply, wep)
-	return ply:CanPickupWepClass(wep:GetClass()) or wep:GetClass() == "weapon_physgun"
+	return true
+	--return ply:CanPickupWepClass(wep:GetClass()) or wep:GetClass() == "weapon_physgun"
 end
 
 concommand.Add("dr_dropweapon", function(ply)
