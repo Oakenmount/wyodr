@@ -1,10 +1,3 @@
-
-local default_round_lengths = {
-	[ROUND_WAIT] = 3,
-	[ROUND_ACTIVE] = 60 * 6,
-	[ROUND_POST] = 5	
-}
-
 local round_stuff = {
 	[ROUND_WAIT] = function()
 		wyodr.CleaningMap = true
@@ -28,7 +21,7 @@ local round_stuff = {
 wyodr.SetRoundState = function(state)
 	MsgN("Round state changing to ", state)
 	SetGlobalFloat("roundstart", CurTime())
-	SetGlobalFloat("roundend", CurTime() + default_round_lengths[state])
+	SetGlobalFloat("roundend", CurTime() + wyodr.RoundLengths[state])
 	local rstuff = round_stuff[state]
 	if rstuff then
 		local stat, err = pcall(rstuff)
