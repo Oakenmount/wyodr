@@ -117,12 +117,8 @@ hook.Add("DRPreventTeamJoin", "DRPreventTeamJoin", function(ply,teamid)
 	
 	if deaths == 0 then return false end
 	
-	if teamid == TEAM_DEATH and ply:Team() == TEAM_RUNNER and (((runners  - 1) / (deaths + 1)) < GetConVarNumber("dr_death_ratio")) then
-		wyodr.ErrorMsg(ply,"Team is full! Ratio must be 1:"..GetConVarNumber("dr_death_ratio"))
-		return true
-	elseif teamid == TEAM_DEATH and ply:Team() == TEAM_SPECTATOR and (((runners ) / (deaths + 1)) < GetConVarNumber("dr_death_ratio")) then
-		wyodr.ErrorMsg(ply,"Team is full! Ratio must be 1:"..GetConVarNumber("dr_death_ratio"))
-		return true
+	if teamid == TEAM_DEATH and deaths >= 2 then
+	    return true
 	end
 	return false
 end)
