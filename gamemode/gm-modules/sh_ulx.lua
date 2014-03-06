@@ -117,7 +117,9 @@ addpdataid:help( "Give ID a donor rank." )
 
 
 if SERVER then
-    hook.Add("PlayerInitialSpawn","supportercheck",function(ply)
+    hook.Add("PlayerConnect","supporterLelcheck",function(ply)
+        print(tobool(ply:GetPData("supporter",false) or false))
+        print(ply:GetPData("supporter",false))
     	if tobool(ply:GetPData("supporter",false) or false) == true then
     		ply:SetNWBool("supporter",true)
     	end
