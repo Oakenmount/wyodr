@@ -23,7 +23,7 @@ hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
     ply:SetJumpPower( math.sqrt(2 * 800 * 57.0) ) -- 2 * gravity * height
     ply:SetHull( Vector( -16, -16, 0 ), Vector( 16, 16, 62 ) )
     ply:SetHullDuck( Vector( -16, -16, 0 ), Vector( 16, 16, 45 ) )
-	
+	ply:Give("weapon_knife")
 	ply:UnSpectate()
     player_manager.OnPlayerSpawn(ply)
     player_manager.RunClass(ply, "Spawn")
