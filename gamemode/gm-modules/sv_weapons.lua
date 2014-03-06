@@ -28,7 +28,7 @@ hook.Add("EntityRemoved", "GiveBackFists", function(ent)
 		local owner = ent:GetOwner()
 		timer.Simple(0.1, function()
 			if IsValid(owner) and owner:Alive() and owner:Team() ~= TEAM_SPECTATOR then 
-			    owner:Give("weapon_crowbar")	
+			    owner:Give("weapon_knife")	
 			end
 		end)
 	end

@@ -3,6 +3,7 @@ local mappings = {
 	["weapon_hegrenade"] = "bb_cssfrag_alt",
 	["weapon_smokegrenade"] = "bb_css_smoke_alt",
 	["weapon_knife"] = "bb_css_knife_alt",
+	["weapon_elite"] = "bb_dualelites_alt",
 }
 
 for _,v in pairs({"ak47", "aug", "awp", "famas", "g3sg1", "galil", "m249", "m3", "m4a1", "mac10",
@@ -33,7 +34,7 @@ do
 		end
 	end
 	
-	function ENT:Touch(ply)
+	function ENT:Use(ply)
 		if not ply:CanPickupWepClass(self.WepClass) then return end
 		ply:Give(self.WepClass)
 		ply:SelectWeapon(self.WepClass)
