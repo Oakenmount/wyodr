@@ -1,28 +1,3 @@
-team.SetUp(1,"Runners",Color(192, 57, 43))
-team.SetUp(2,"Death",Color(52, 73, 94))
-team.SetUp(TEAM_SPECTATOR,"Spectator",Color(243, 156, 18))
-team.SetSpawnPoint( TEAM_DEATH, "info_player_terrorist" )
-team.SetSpawnPoint( TEAM_RUNNER, "info_player_counterterrorist" )
-
-
-hook.Add("PlayerSelectSpawn","selectleepikspawn",function( pl )
-    
-    if pl:Team() == TEAM_RUNNER then
-            local spawns = ents.FindByClass( "info_player_counterterrorist" )
-            local random_entry = math.random(#spawns)
- 
-            return spawns[random_entry]
-    else
-
-            local spawns = ents.FindByClass( "info_player_terrorist" )
-            local random_entry = math.random(#spawns)
- 
-            return spawns[random_entry]
-    end             
- 
-end)
-
-
 
 local basefol = GM.FolderName.."/gamemode/gm-modules/"
 
