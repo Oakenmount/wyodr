@@ -116,9 +116,7 @@ addpdataid:defaultAccess( ULib.ACCESS_SUPERADMIN )
 addpdataid:help( "Give ID a donor rank." )
 
 
-hook.Add("PlayerInitialSpawn","supporterLelcheck",function(ply)
-    print(tobool(ply:GetPData("supporter",false) or false))
-    print(ply:GetPData("supporter",false))
+hook.Add("PlayerInitialSpawn","supportercheck",function(ply)
     if tobool(ply:GetPData("supporter",false) or false) == true then
     	ply:SetNWBool("supporter",true)
     end

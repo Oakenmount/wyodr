@@ -1,7 +1,7 @@
-function GAMEMODE:PlayerCanPickupWeapon(ply, wep)
+hook.Add("PlayerCanPickupWeapon","PlayerCanPickupWeapon",function(ply, wep)
 	return true
 	--return ply:CanPickupWepClass(wep:GetClass()) or wep:GetClass() == "weapon_physgun"
-end
+end)
 
 concommand.Add("dr_dropweapon", function(ply)
 	local wep = ply:GetActiveWeapon()
@@ -42,6 +42,6 @@ hook.Add("DoPlayerDeath","HOOBESCANTCODEDIS",function(ply,inflic,killer)
 	end
 end)
 
-function GAMEMODE:AllowPlayerPickup( player, entity)
-
-end
+hook.Add("AllowPlayerPickup","AllowPlayerPickup",function( player, entity)
+    return true
+end)
