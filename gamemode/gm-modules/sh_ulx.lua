@@ -116,19 +116,17 @@ addpdataid:defaultAccess( ULib.ACCESS_SUPERADMIN )
 addpdataid:help( "Give ID a donor rank." )
 
 
-if SERVER then
-    hook.Add("PlayerConnect","supporterLelcheck",function(ply)
-        print(tobool(ply:GetPData("supporter",false) or false))
-        print(ply:GetPData("supporter",false))
-    	if tobool(ply:GetPData("supporter",false) or false) == true then
-    		ply:SetNWBool("supporter",true)
-    	end
-    end)
-end
+hook.Add("PlayerInitialSpawn","supporterLelcheck",function(ply)
+    print(tobool(ply:GetPData("supporter",false) or false))
+    print(ply:GetPData("supporter",false))
+    if tobool(ply:GetPData("supporter",false) or false) == true then
+    	ply:SetNWBool("supporter",true)
+    end
+end)
 
 local Player = FindMetaTable("Player")
 function Player:IsSupporter()
-	return self:GetNWBool("supporter") or false
+	return tobool(self:GetNWBool("supporter")) or false
 end
 
 function ulx.givepointsid( calling_ply, id, rank )
