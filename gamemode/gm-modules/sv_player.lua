@@ -11,7 +11,6 @@ hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
 end)
 
 hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
-    ply:StripWeapons()
 	if ply:Team() ~= TEAM_DEATH and ply:Team() ~= TEAM_RUNNER then
 		GAMEMODE:PlayerSpawnAsSpectator(ply)
 		return true

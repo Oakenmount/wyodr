@@ -54,6 +54,11 @@ timer.Create("roundlogic", 1, 0, function()
 			hook.Call("RoundEnd",GAMEMODE,nil)
 			BroadcastLua([[hook.Call("RoundEnd",GAMEMODE,nil)]])
 		elseif state == ROUND_POST then
+		    for k,v in pairs(player.GetAll()) do
+			    if v:Alive() and v:IsValid() then
+			        v:StripWeapons()
+			    end
+		    end
 			wyodr.SetRoundState(ROUND_WAIT)
 			hook.Call("RoundPreparing",GAMEMODE)
 		end	
