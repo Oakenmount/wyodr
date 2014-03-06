@@ -1,9 +1,9 @@
 
 local WeaponTable = {
 	primary = {
-	"bb_ak47_alt",
-	"bb_aug_alt",
-	"bb_awp_alt",
+	"weapon_ak47",
+	"weapon_aug",
+	"weapon_awp",
 	"bb_famas_alt",
 	"bb_g3sg1_alt",
 	"bb_galil_alt",
