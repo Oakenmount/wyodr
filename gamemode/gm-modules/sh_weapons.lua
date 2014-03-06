@@ -4,36 +4,36 @@ local WeaponTable = {
 	"weapon_ak47",
 	"weapon_aug",
 	"weapon_awp",
-	"bb_famas_alt",
-	"bb_g3sg1_alt",
-	"bb_galil_alt",
-	"bb_m249_alt",
-	"bb_m3_alt",
-	"bb_m4a1_alt",
-	"bb_mac10_alt",
-	"bb_mp5_alt",
-	"bb_scout_alt",
-	"bb_sg550_alt",
-	"bb_sg552_alt",
-	"bb_tmp_alt",
-	"bb_ump45_alt",
-	"bb_xm1014_alt",
-	"bb_p90_alt"
+	"weapon_famas",
+	"weapon_g3sg1",
+	"weapon_galil",
+	"weapon_m249",
+	"weapon_m3",
+	"weapon_m4a1",
+	"weapon_mac10",
+	"weapon_mp5",
+	"weapon_scout",
+	"weapon_sg550",
+	"weapon_sg552",
+	"weapon_tmp",
+	"weapon_ump45",
+	"weapon_xm1014",
+	"weapon_p90"
 	},
 	secondary = {
-	"bb_deagle_alt",
-	"bb_dualelites_alt",
-	"bb_fiveseven_alt",
-	"bb_glock_alt",
-	"bb_p228_alt",
-	"bb_usp_alt"
+	"weapon_deagle",
+	"weapon_dualelites",
+	"weapon_fiveseven",
+	"weapon_glock",
+	"weapon_p228",
+	"weapon_usp"
 	},
 	melee = {
-	"bb_css_knife_alt"
+	"weapon_knife"
 	},
 	throw = {
-	"bb_cssfrag_alt",
-	"bb_css_smoke_alt"
+	"weapon_hegrenade",
+	"weapon_smokegrenade"
 	}
 }
 
@@ -47,7 +47,7 @@ if SERVER then
 		if table.HasValue(WeaponTable.secondary, wep:GetClass()) and hitgroup == HITGROUP_HEAD then
 			dmginfo:ScaleDamage(2)
 		end
-		if wep:GetClass() == "bb_awp_alt" then
+		if wep:GetClass() == "weapon_awp" then
 			dmginfo:ScaleDamage(5)	
 		end
 	end)
