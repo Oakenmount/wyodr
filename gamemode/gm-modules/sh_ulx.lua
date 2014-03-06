@@ -19,7 +19,7 @@ local affected_plys = {}
 ulx.fancyLogAdmin( calling_ply,  "#A respawned #T", affected_plys)
 
 end
-local respawn = ulx.command("JailBreak", "ulx respawn", ulx.respawn, "!respawn",true)
+local respawn = ulx.command("DeathRun", "ulx respawn", ulx.respawn, "!respawn",true)
 respawn:addParam{ type=ULib.cmds.PlayersArg }
 respawn:defaultAccess( ULib.ACCESS_SUPERADMIN )
 respawn:help( "Respawn target<s>" )
@@ -43,7 +43,7 @@ function ulx.force(calling_ply,target_ply,team)
 	ulx.fancyLogAdmin( calling_ply,  "#A forced #T to #s", target_ply,team)
 
 end
-local force = ulx.command("JailBreak", "ulx force", ulx.force, "!force",true)
+local force = ulx.command("DeathRun", "ulx force", ulx.force, "!force",true)
 force:addParam{ type=ULib.cmds.PlayerArg }
 force:addParam{ type=ULib.cmds.StringArg, completes={"death","runner","spectator"}, hint="Role", error="invalid team \"%s\" specified", ULib.cmds.restrictToCompletes }
 force:defaultAccess( ULib.ACCESS_SUPERADMIN )
@@ -55,7 +55,7 @@ function ulx.forcespec(calling_ply, target_ply)
 	
 	ulx.fancyLogAdmin( calling_ply,  "#A forced #T to spectator", target_ply)
 end
-local forcespec = ulx.command("JailBreak", "ulx forcespec", ulx.forcespec, "!forcespec",true)
+local forcespec = ulx.command("DeathRun", "ulx forcespec", ulx.forcespec, "!forcespec",true)
 forcespec:addParam{ type=ULib.cmds.PlayerArg }
 forcespec:defaultAccess( ULib.ACCESS_SUPERADMIN )
 forcespec:help( "force target to spectator." )
@@ -68,7 +68,7 @@ function ulx.playtime(calling_ply)
 	ulx.fancyLogAdmin( calling_ply, caller,  "Playtime: #s minutes", time)
 	
 end
-local playtime = ulx.command("JailBreak", "ulx playtime", ulx.playtime, "!playtime",true)
+local playtime = ulx.command("DeathRun", "ulx playtime", ulx.playtime, "!playtime",true)
 playtime:defaultAccess( ULib.ACCESS_SUPERADMIN )
 playtime:help( "Shows your current playime" )
 
@@ -109,19 +109,20 @@ function ulx.addpdataid( calling_ply, id, rank )
 	end
 
 end
-local addpdataid = ulx.command( "JailBreak", "ulx addpdataid", ulx.addpdataid )
+local addpdataid = ulx.command( "DeathRun", "ulx addpdataid", ulx.addpdataid )
 addpdataid:addParam{ type=ULib.cmds.StringArg, hint="SteamID, IP, or UniqueID" }
 addpdataid:addParam{ type=ULib.cmds.StringArg, completes={"supporter","funder"}, hint="status", error="invalid status \"%s\" specified", ULib.cmds.restrictToCompletes }
 addpdataid:defaultAccess( ULib.ACCESS_SUPERADMIN )
 addpdataid:help( "Give ID a donor rank." )
 
 
-
-hook.Add("PlayerInitialSpawn","supportercheck",function(ply)
-	if tobool(ply:GetPData("supporter",false) or false) == true then
-		ply:SetNWBool("supporter",true)
-	end
-end)
+if SERVER then
+    hook.Add("PlayerInitialSpawn","supportercheck",function(ply)
+    	if tobool(ply:GetPData("supporter",false) or false) == true then
+    		ply:SetNWBool("supporter",true)
+    	end
+    end)
+end
 
 local Player = FindMetaTable("Player")
 function Player:IsSupporter()
@@ -147,7 +148,7 @@ function ulx.givepointsid( calling_ply, id, rank )
 	end
 
 end
-local givepointsid = ulx.command( "JailBreak", "ulx givepointsid", ulx.givepointsid )
+local givepointsid = ulx.command( "DeathRun", "ulx givepointsid", ulx.givepointsid )
 givepointsid:addParam{ type=ULib.cmds.StringArg, hint="SteamID, IP, or UniqueID" }
 givepointsid:addParam{ type=ULib.cmds.StringArg, completes={"Bronze","Silver","Gold"}, hint="pack", error="invalid pack \"%s\" specified", ULib.cmds.restrictToCompletes }
 givepointsid:defaultAccess( ULib.ACCESS_SUPERADMIN )
@@ -157,7 +158,7 @@ function ulx.toggledeafmode(calling_ply)
 	calling_ply:SetDeafMode(not calling_ply:GetDeafMode())
 	ULib.tsay(calling_ply, string.format("Your deafmode: %s", calling_ply:GetDeafMode()))
 end
-local tdm = ulx.command("JailBreak", "ulx toggledeafmode", ulx.toggledeafmode, "!toggledeafmode", true)
+local tdm = ulx.command("DeathRun", "ulx toggledeafmode", ulx.toggledeafmode, "!toggledeafmode", true)
 tdm:defaultAccess(ULib.ACCESS_ALL)
 
 function ulx.forceachieve(calling_ply, target_ply,achievement)
@@ -165,7 +166,7 @@ function ulx.forceachieve(calling_ply, target_ply,achievement)
 
 ulx.fancyLogAdmin( calling_ply, true, "#A gave #T achievement: #s", target_ply,achievement)
 end
-local forceachieve = ulx.command("JailBreak", "ulx forceachieve", ulx.forceachieve, "!forceachieve",true)
+local forceachieve = ulx.command("DeathRun", "ulx forceachieve", ulx.forceachieve, "!forceachieve",true)
 forceachieve:addParam{ type=ULib.cmds.PlayerArg }
 forceachieve:addParam{ type=ULib.cmds.StringArg, hint="achievement" }
 forceachieve:defaultAccess( ULib.ACCESS_SUPERADMIN )

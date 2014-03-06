@@ -39,4 +39,9 @@ if CLIENT then
 		end
 		
 	end)
+	
+	function wyodr.NotifySelf(...)
+        chat.AddText(Color(10,115,0),"[Deathrun] ",Color(255,255,255), ...)
+	end
+	
 end
