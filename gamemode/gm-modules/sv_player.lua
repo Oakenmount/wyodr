@@ -159,15 +159,3 @@ hook.Add("PlayerCanHearPlayersVoice", "DeafModeStuff", function(listener, talker
 	return true
 end)
 
-hook.Add("OnPlayerHitGround","StaminaReplicate",function(ply,bool)
-
-end)
-
-timer.Create("HealthRegen",1,0,function()
-    for k,v in pairs(team.GetPlayers(TEAM_RUNNER)) do
-        if v:Health() < v:GetMaxHealth() and v:Alive() then
-            v:SetHealth(v:Health() + 1)
-        end
-    end
-end)
-
