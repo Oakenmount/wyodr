@@ -9,4 +9,8 @@ hook.Add("PlayerBindPress", "OverridePlayerBinds", function(ply, bind, pressed)
 		end
 		return true	
 	end
+	if bind == "+menu" and pressed then
+		RunConsoleCommand("dr_dropweapon")
+		return true	
+	end
 end)
