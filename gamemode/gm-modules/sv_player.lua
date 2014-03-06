@@ -4,6 +4,9 @@ hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
 	if wyodr.GetRoundState() == ROUND_ACTIVE then
 		ply:KillSilent()
 	end
+	if tobool(ply:GetPData("supporter",false) or false) == true then
+    	ply:SetNWBool("supporter",true)
+    end
 	return true
 end)
 

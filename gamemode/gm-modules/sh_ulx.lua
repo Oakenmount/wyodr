@@ -116,12 +116,6 @@ addpdataid:defaultAccess( ULib.ACCESS_SUPERADMIN )
 addpdataid:help( "Give ID a donor rank." )
 
 
-hook.Add("PlayerInitialSpawn","supportercheck",function(ply)
-    if tobool(ply:GetPData("supporter",false) or false) == true then
-    	ply:SetNWBool("supporter",true)
-    end
-end)
-
 local Player = FindMetaTable("Player")
 function Player:IsSupporter()
 	return tobool(self:GetNWBool("supporter")) or false
