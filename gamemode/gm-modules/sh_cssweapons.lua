@@ -33,7 +33,7 @@ do
 		end
 	end
 	
-	function ENT:Use(ply)
+	function ENT:Touch(ply)
 		if not ply:CanPickupWepClass(self.WepClass) then return end
 		ply:Give(self.WepClass)
 		ply:SelectWeapon(self.WepClass)
