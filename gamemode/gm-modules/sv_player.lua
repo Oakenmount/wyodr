@@ -73,7 +73,11 @@ hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
     if ply.nextspawn and CurTime() < ply.nextspawn then return true end
     if wyodr.GetRoundState() == ROUND_POST then return true end
     if #team.GetPlayers(TEAM_DEATH) < 1 then
-        --ply:Spawn()
+        if false then
+            wyodr.SetRoundState(ROUND_POST)  
+            -- todo check if time > 2 min or something and cleanp map
+        end
+        ply:Spawn()
         return true
     end
     
