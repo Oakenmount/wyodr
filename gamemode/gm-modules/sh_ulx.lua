@@ -15,7 +15,7 @@ local affected_plys = {}
 		v:Spawn()
 	end
 
-
+sup
 ulx.fancyLogAdmin( calling_ply,  "#A respawned #T", affected_plys)
 
 end
@@ -94,32 +94,6 @@ end
 local donate = ulx.command("Donate", "ulx donate", ulx.donate, "!donate",true)
 donate:defaultAccess( ULib.ACCESS_ALL )
 donate:help( "Open donation panel" )
-
-function ulx.addpdataid( calling_ply, id, rank )
-	for k,v in pairs(player.GetAll()) do
-		if v:SteamID() == id then
-			v:SetPData(rank,true)
-			v:SetNWBool("supporter",true)
-			v:PS_GivePoints(500)
-			v:IncrAchStat("donations")
-			ulx.fancyLogAdmin( nil, "#T became a #s", v, rank )
-			ULib.ucl.userAllow(id,"ulx reservedslots")
-		end
-		v:SendLua([[sound.PlayURL("http://puu.sh/6yKi0.ogg", "", function() end )]])
-	end
-
-end
-local addpdataid = ulx.command( "DeathRun", "ulx addpdataid", ulx.addpdataid )
-addpdataid:addParam{ type=ULib.cmds.StringArg, hint="SteamID, IP, or UniqueID" }
-addpdataid:addParam{ type=ULib.cmds.StringArg, completes={"supporter","funder"}, hint="status", error="invalid status \"%s\" specified", ULib.cmds.restrictToCompletes }
-addpdataid:defaultAccess( ULib.ACCESS_SUPERADMIN )
-addpdataid:help( "Give ID a donor rank." )
-
-
-local Player = FindMetaTable("Player")
-function Player:IsSupporter()
-	return tobool(self:GetNWBool("supporter")) or false
-end
 
 function ulx.givepointsid( calling_ply, id, rank )
 	local points
