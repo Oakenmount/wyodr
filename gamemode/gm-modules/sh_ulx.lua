@@ -15,8 +15,7 @@ local affected_plys = {}
 		v:Spawn()
 	end
 
-sup
-ulx.fancyLogAdmin( calling_ply,  "#A respawned #T", affected_plys)
+    ulx.fancyLogAdmin( calling_ply,  "#A respawned #T", affected_plys)
 
 end
 local respawn = ulx.command("DeathRun", "ulx respawn", ulx.respawn, "!respawn",true)
