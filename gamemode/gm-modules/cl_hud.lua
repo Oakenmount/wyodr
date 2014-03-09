@@ -27,7 +27,7 @@ hook.Add("HUDPaint", "YouGottaDrawTheHUD", function()
     surface.SetDrawColor(rstate_colors[rstate])
     surface.DrawRect(0, 0, ScrW()*roundfrac, 25)
     
-    draw.SimpleText(rstate_names[rstate] .. " " .. string.ToMinutesSeconds(math.max(math.Round(roundEnd), 0)), "DermaLarge", 3, -2, Color(255, 255, 255))   
+    draw.SimpleText(rstate_names[rstate] .. " " .. string.ToMinutesSeconds(math.max(math.Round(roundProgress), 0)), "DermaLarge", 3, -2, Color(255, 255, 255))   
 end)
 
 hook.Add("CalcView", "DeathView", function(pl, origin, angles, fov)

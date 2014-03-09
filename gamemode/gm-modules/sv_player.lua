@@ -79,8 +79,9 @@ hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
             wyodr.Notify("Restarting round to clear all anti-AFK mechanisms etc..")
             wyodr.SetRoundState(ROUND_POST)
             -- todo check if time > 2 min or something and cleanp map
+        else
+            ply:Spawn()
         end
-        ply:Spawn()
         return true
     end
     
