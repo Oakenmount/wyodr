@@ -74,8 +74,10 @@ hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
     if ply.nextspawn and CurTime() < ply.nextspawn then return true end
     if wyodr.GetRoundState() == ROUND_POST then return true end
     if #team.GetPlayers(TEAM_DEATH) < 1 then
-        if false then
-            wyodr.SetRoundState(ROUND_POST)  
+        local elapsed_roundtime = CurTime() - GetGlobalFloat("roundstart")
+        if elapsed_roundtime > 60*2 then
+            wyodr.Notify("Restarting round to clear all anti-AFK mechanisms etc..")
+            wyodr.SetRoundState(ROUND_POST)
             -- todo check if time > 2 min or something and cleanp map
         end
         ply:Spawn()
