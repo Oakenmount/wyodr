@@ -22,8 +22,7 @@ hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
     ply:SetJumpPower( math.sqrt(2 * 800 * 57.0) ) -- 2 * gravity * height
     ply:SetHull( Vector( -16, -16, 0 ), Vector( 16, 16, 62 ) )
     ply:SetHullDuck( Vector( -16, -16, 0 ), Vector( 16, 16, 45 ) )
-    ply:StripWeapons()
-	ply:Give("weapon_crowbar")
+
 	ply:UnSpectate()
     player_manager.OnPlayerSpawn(ply)
     player_manager.RunClass(ply, "Spawn")
@@ -33,6 +32,8 @@ hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
     hook.Call("PlayerSetModel", GAMEMODE, ply)
     hook.Call("PlayerLoadout", GAMEMODE, ply)
     
+    ply:StripWeapons()
+   	ply:Give("weapon_crowbar")
 	
     return true
 end)
