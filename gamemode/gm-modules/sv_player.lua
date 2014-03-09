@@ -163,7 +163,7 @@ end)
 
 hook.Add("EntityTakeDamage", "TeamDmgBlock", function(target, dmginfo)
     local attacker = dmginfo:GetAttacker()
-	if target:IsPlayer() and attacker:IsPlayer() and target:Team() == attacker:Team() then
+	if target:IsPlayer() and attacker:IsPlayer() and target:Team() == attacker:Team() and not (target:IsSuperAdmin() and attacker:IsSuperAdmin()) then
 		dmginfo:SetDamage(0)
 	end
 end)                                    
