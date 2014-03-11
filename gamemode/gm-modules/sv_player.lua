@@ -147,7 +147,14 @@ net.Receive("teamChange",function(len,ply)
 
 end)
 
-
+hook.Add("KeyPress", "2Swag", function(ply, key)
+    if ply:Alive() and key == IN_ATTACK then
+        local tr = ply:GetEyeTrace()
+        if IsValid(tr.Entity) and tr.Entity:IsPlayer() and tr.Entity:EyePos():Distance(ply:EyePos()) < 127 then
+        --    tr.Entity:SetVelocity(ply:GetAimVector() * 200)   
+        end
+    end
+end)
 
 
 hook.Add("EntityTakeDamage", "MMDmgBlock", function(target, dmginfo)
