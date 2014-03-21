@@ -59,7 +59,6 @@ hook.Add("PlayerSetModel", "PlayerSetModel", function(ply)
 	
 	if model then ply:SetModel(model) end
 	
-	return true
 end)
 
 hook.Add("PlayerDeathSound", "PlayerDeathSound", function()
