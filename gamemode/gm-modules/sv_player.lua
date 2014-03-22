@@ -34,7 +34,7 @@ function GAMEMODE:PlayerSpawn(ply)
     ply:StripWeapons()
    	ply:Give("weapon_crowbar")
 	
-end)
+end
 
 function GAMEMODE:PlayerLoadout(ply)
 
@@ -44,7 +44,7 @@ function GAMEMODE:PlayerSpawnAsSpectator(ply)
     ply:StripWeapons()
     ply:SetTeam(TEAM_SPECTATOR)
     ply:Spectate(OBS_MODE_ROAMING)
-end)
+end
 
 function GAMEMODE:PlayerSetModel(ply)
 	local team = ply:Team()
