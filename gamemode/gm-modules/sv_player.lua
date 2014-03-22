@@ -1,4 +1,4 @@
-hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
+function GAMEMODE:PlayerInitialSpawn(ply)
     ply:SetTeam(TEAM_RUNNER)
     ply:Spawn()
 	if wyodr.GetRoundState() == ROUND_ACTIVE then
@@ -7,13 +7,12 @@ hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn", function(ply)
 	if tobool(ply:GetPData("supporter",false) or false) == true then
     	ply:SetNWBool("supporter",true)
     end
-	return true
-end)
+end
 
-hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
+function GAMEMODE:PlayerSpawn(ply)
 	if ply:Team() ~= TEAM_DEATH and ply:Team() ~= TEAM_RUNNER then
 		GAMEMODE:PlayerSpawnAsSpectator(ply)
-		return true
+		return
 	end
     
     ply:AllowFlashlight(true)
@@ -35,20 +34,19 @@ hook.Add("PlayerSpawn", "PlayerSpawn", function(ply)
     ply:StripWeapons()
    	ply:Give("weapon_crowbar")
 	
-    return true
-end)
-hook.Add("PlayerLoadout", "PlayerLoadout", function(ply)
-	return true
 end)
 
-hook.Add("PlayerSpawnAsSpectator", "PlayerSpawnAsSpectator", function(ply)
+function GAMEMODE:PlayerLoadout(ply)
+
+end
+
+function GAMEMODE:PlayerSpawnAsSpectator(ply)
     ply:StripWeapons()
     ply:SetTeam(TEAM_SPECTATOR)
     ply:Spectate(OBS_MODE_ROAMING)
-    return true
 end)
 
-hook.Add("PlayerSetModel", "PlayerSetModel", function(ply)
+function GAMEMODE:PlayerSetModel(ply)
 	local team = ply:Team()
 	local model
 	if team == TEAM_RUNNER then
@@ -58,20 +56,19 @@ hook.Add("PlayerSetModel", "PlayerSetModel", function(ply)
 	end
 	
 	if model then ply:SetModel(model) end
-	
-end)
+end
 
-hook.Add("PlayerDeathSound", "PlayerDeathSound", function()
-	return true
-end)
+function GAMEMODE:PlayerDeathSound()
+    return true
+end
 
-hook.Add( "PlayerDeath", "player_initalize_dvars", function(ply,wep,kil)
+hook.Add("PlayerDeath", "player_initalize_dvars", function(ply,wep,kil)
     ply.nextspawn = CurTime() + 0.8
     ply.CheckCleanup = false
 end)
 
 
-hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
+function GAMEMODE:PlayerDeathThink(ply)
     if ply.nextspawn and CurTime() < ply.nextspawn then return true end
     if wyodr.GetRoundState() == ROUND_POST then return true end
     if ply.CheckCleanup then return end
@@ -88,15 +85,15 @@ hook.Add("PlayerDeathThink", "PlayerDeathThink", function(ply)
         else
             ply:Spawn()
         end
-        return true
+        return
     end
     
 	if ply:GetObserverMode() == OBS_MODE_NONE then
 		ply:Spectate(OBS_MODE_ROAMING)
-		return true
+		return
 	end
-	return true
-end)
+	return
+end
 
 hook.Add("DRPreventTeamJoin", "DRPreventTeamJoin", function(ply,teamid)
 	local runners = team.NumPlayers(TEAM_RUNNER)
@@ -175,8 +172,7 @@ hook.Add("EntityTakeDamage", "TeamDmgBlock", function(target, dmginfo)
 end)                                    
 
 
-hook.Add("PlayerCanHearPlayersVoice", "DeafModeStuff", function(listener, talker)
+function GAMEMODE:PlayerCanHearPlayersVoice(listener, talker)
 	if listener:GetDeafMode() then return false end -- If deafmode, dont transmit any voices
-	return true
-end)
+end
 
