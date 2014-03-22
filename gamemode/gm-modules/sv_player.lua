@@ -62,15 +62,15 @@ function GAMEMODE:PlayerDeathSound()
     return true
 end
 
-hook.Add("PlayerDeath", "player_initalize_dvars", function(ply,wep,kil)
+function GAMEMODE:PlayerDeath(ply,wep,kil)
     ply.nextspawn = CurTime() + 0.8
     ply.CheckCleanup = false
-end)
+end
 
 
 function GAMEMODE:PlayerDeathThink(ply)
-    if ply.nextspawn and CurTime() < ply.nextspawn then return true end
-    if wyodr.GetRoundState() == ROUND_POST then return true end
+    if ply.nextspawn and CurTime() < ply.nextspawn then return end
+    if wyodr.GetRoundState() == ROUND_POST then return end
     if ply.CheckCleanup then return end
     
     if #team.GetPlayers(TEAM_DEATH) < 1 then
@@ -85,14 +85,11 @@ function GAMEMODE:PlayerDeathThink(ply)
         else
             ply:Spawn()
         end
-        return
     end
     
 	if ply:GetObserverMode() == OBS_MODE_NONE then
 		ply:Spectate(OBS_MODE_ROAMING)
-		return
 	end
-	return
 end
 
 hook.Add("DRPreventTeamJoin", "DRPreventTeamJoin", function(ply,teamid)
