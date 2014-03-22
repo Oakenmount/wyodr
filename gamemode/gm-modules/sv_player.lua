@@ -47,6 +47,7 @@ function GAMEMODE:PlayerSpawnAsSpectator(ply)
 end
 
 function GAMEMODE:PlayerSetModel(ply)
+    print(ply)
 	local team = ply:Team()
 	local model
 	if team == TEAM_RUNNER then
