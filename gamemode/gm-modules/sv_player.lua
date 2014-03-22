@@ -80,6 +80,7 @@ function GAMEMODE:PlayerDeathThink(ply)
             SetGlobalFloat("roundstart", CurTime())
             timer.Simple(2, function() game.CleanUpMap()  end)
             ply.CheckCleanup = true
+            ply:Spawn()
             --game.CleanUpMap()
             -- todo check if time > 2 min or something and cleanp map
         else
@@ -87,7 +88,7 @@ function GAMEMODE:PlayerDeathThink(ply)
         end
     end
     
-	if ply:GetObserverMode() == OBS_MODE_NONE then
+	if ply:GetObserverMode() == OBS_MODE_NONE and #team.GetPlayers(TEAM_DEATH) >= 1 then
 		ply:Spectate(OBS_MODE_ROAMING)
 	end
 end
