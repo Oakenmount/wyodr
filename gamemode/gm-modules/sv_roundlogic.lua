@@ -1,3 +1,4 @@
+local maxrounds = 8
 local round_stuff = {
 	[ROUND_WAIT] = function()
 		wyodr.CleaningMap = true
@@ -48,19 +49,18 @@ timer.Create("roundlogic", 1, 0, function()
 				wyodr.SetRoundState(ROUND_ACTIVE)
 				hook.Call("RoundStart",GAMEMODE)
 				BroadcastLua([[hook.Call("RoundStart",GAMEMODE)]])
+				SetGlobalFloat("CurRound",GetGlobalFloat("CurRound",0) + 1)
+			    wyodr.Notify("Starting round "..GetGlobalFloat("CurRound").."/"..maxrounds)
 			end
 		elseif state == ROUND_ACTIVE then
 			wyodr.SetRoundState(ROUND_POST)
 			hook.Call("RoundEnd",GAMEMODE,nil)
 			BroadcastLua([[hook.Call("RoundEnd",GAMEMODE,nil)]])
 		elseif state == ROUND_POST then
-		    for k,v in pairs(player.GetAll()) do
-			    if v:Alive() and v:IsValid() then
-			        v:StripWeapons()
-			    end
-		    end
+			if GetGlobalFloat("CurRound",0) >= maxrounds then return end
 			wyodr.SetRoundState(ROUND_WAIT)
 			hook.Call("RoundPreparing",GAMEMODE)
+			
 		end	
 	end
 	
