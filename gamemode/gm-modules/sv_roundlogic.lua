@@ -74,7 +74,6 @@ timer.Create("roundlogic", 1, 0, function()
 			wyodr.SetRoundState(ROUND_POST)
 			hook.Call("RoundEnd",GAMEMODE,TEAM_RUNNER)
 			BroadcastLua([[hook.Call("RoundEnd",GAMEMODE,nil)]])
-			SetGlobalBool("WardenActive",false)
 			wyodr.Notify("Runners win!")
 		elseif (pri_count == 0) and enough_players then
 			wyodr.SetRoundState(ROUND_POST)
