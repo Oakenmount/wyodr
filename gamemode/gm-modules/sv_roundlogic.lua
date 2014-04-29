@@ -11,7 +11,9 @@ local round_stuff = {
 				table.insert(activeplayers,ply)
 			end
 	    end
-	    table.Random(activeplayers):SetTeam(TEAM_DEATH)
+	    local picked = table.Random(activeplayers)
+	    picked:SetTeam(TEAM_DEATH)
+	    wyodr.Notify(picked:Nick(), " was selected as death!")
 	    for k,v in pairs(activeplayers) do
 	        v:Spawn()
         end
