@@ -4,11 +4,18 @@ local round_stuff = {
 		wyodr.CleaningMap = true
 		game.CleanUpMap()
 		wyodr.CleaningMap = false
+		local activeplayers = {}
 		for _,ply in pairs(player.GetAll()) do
 			if ply:IsActivePlayer() then
-				ply:Spawn()
+			    ply:SetTeam(TEAM_RUNNER)
+				table.insert(activeplayers,ply)
 			end
-		end
+	    end
+	    table.Random(activeplayers):SetTeam(TEAM_DEATH)
+	    for k,v in pairs(activeplayers) do
+	        v:Spawn()
+        end
+        
 	end,
 	[ROUND_ACTIVE] = function()
 		for _,ply in pairs(player.GetAll()) do

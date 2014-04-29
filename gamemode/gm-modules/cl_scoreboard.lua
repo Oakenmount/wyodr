@@ -261,13 +261,13 @@ local TEAM_LABEL_LINE =
 		self:DockMargin( 2, 0, 2, 4 )
 	
 	end,
-	
+--[[	
 	DoClick = function(self)
 		net.Start("teamChange")
 		net.WriteUInt(self.TeamId, 8)
 		net.SendToServer()	
 	end,
-	
+]]	
 	Paint = function( self, w, h )
 		surface.SetDrawColor(0, 0, 0)
 		surface.DrawOutlinedRect(0, 0, w, h)
